@@ -2,11 +2,11 @@
     <div class="card mx-2">
         <div>
             <a :href="`https://www.themoviedb.org/movie/${filmTile.film.id}?language=ru-RU`" target="_blank">
-            <img v-if="filmTile.film.poster" class="card-img-top m-auto d-inline-block w-auto"
-                 :src="filmTile.film.poster"
-                 :alt="filmTile.film.title">
-            <img v-else class="card-img-top m-auto d-inline-block w-auto" src="@/assets/no-person.png"
-                 :alt="filmTile.film.title">
+                <img v-if="filmTile.film.poster" class="card-img-top m-auto d-inline-block w-auto"
+                     :src="filmTile.film.poster"
+                     :alt="filmTile.film.title">
+                <img v-else class="card-img-top m-auto d-inline-block w-auto" src="@/assets/no-person.png"
+                     :alt="filmTile.film.title">
             </a>
         </div>
         <div class="card-body">
@@ -35,19 +35,19 @@
 </template>
 
 <script lang="ts">
-import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
-import FilmTile from '@/models/FilmTile';
-import StarRating from '@/components/StarRating.vue';
+    import {Component, Prop, Vue} from "vue-property-decorator";
+    import FilmTile from "@/models/FilmTile";
+    import StarRating from "@/components/StarRating.vue";
 
-@Component({
-    components: {
-        StarRating,
-    },
-})
-export default class Person extends Vue {
-    @Prop() private filmTile!: FilmTile;
-    private showDetails = false;
-}
+    @Component({
+        components: {
+            StarRating,
+        },
+    })
+    export default class Person extends Vue {
+        @Prop() private filmTile!: FilmTile;
+        private showDetails = false;
+    }
 </script>
 
 <style scoped>

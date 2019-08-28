@@ -14,11 +14,11 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue} from 'vue-property-decorator';
+    import {Component, Vue} from 'vue-property-decorator';
 
-@Component
-export default class CircleLoader extends Vue {
-}
+    @Component
+    export default class CircleLoader extends Vue {
+    }
 </script>
 
 <style scoped>
@@ -28,6 +28,7 @@ export default class CircleLoader extends Vue {
         width: 150px;
         height: 150px;
     }
+
     .circle-wrapper > div {
         position: absolute;
         top: 50%;

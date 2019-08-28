@@ -24,72 +24,110 @@
             <button type="button" class="btn btn-success" @click="startSearch">Start search</button>
         </div>
         <div v-else>
-            <CircleLoader />
+            <CircleLoader/>
             Loading...
         </div>
-        <div class="d-flex flex-row flex-wrap justify-content-around">
-            <FilmTileView v-for="filmTile in searchResult" :filmTile="filmTile" style="width: 500px;" class="mt-3" />
+        <div class="my-2 pagination-top">
+            <Paginator v-if="searchResult.length > 0"
+                       :displayCount="5"
+                       :pageCount="Math.ceil(searchResult.length / pageSize)"
+                       :currentPage="currentPage"
+                       @onChange="onPageChange"
+                       class="d-inline-block m-auto"/>
+        </div>
+        <div v-if="searchResult.length > 0" class="d-flex flex-row flex-wrap justify-content-around">
+            <FilmTileView
+                    v-for="i in range(pageSize*(currentPage - 1), Math.min(searchResult.length, pageSize*currentPage) - 1)"
+                    :filmTile="searchResult[i]"
+                    style="width: 500px;" class="mt-3"/>
+        </div>
+        <div class="my-2">
+            <Paginator
+                    :displayCount="5"
+                    :pageCount="Math.ceil(searchResult.length / pageSize)"
+                    :currentPage="currentPage"
+                    @onChange="onPageChange"
+                    class="d-inline-block m-auto"/>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import {Component, Vue} from 'vue-property-decorator';
-import TMDBApi from '@/services/TMDBApi';
-import ItemSelector from '@/components/ItemSelector.vue';
-import CircleLoader from '@/components/CircleLoader.vue';
-import Person from '@/models/Person';
-import PersonView from '@/components/models/Person';
-import SearchService from '@/services/SearchService';
-import FilmTile from '@/models/FilmTile';
-import FilmTileView from '@/components/models/FilmTile';
+    import {Component, Vue} from "vue-property-decorator";
+    import TMDBApi from "@/services/TMDBApi";
+    import ItemSelector from "@/components/ItemSelector.vue";
+    import CircleLoader from "@/components/CircleLoader.vue";
+    import Person from "@/models/Person";
+    import PersonView from "@/components/models/Person.vue";
+    import SearchService from "@/services/SearchService";
+    import FilmTile from "@/models/FilmTile";
+    import FilmTileView from "@/components/models/FilmTile.vue";
+    import Paginator from "@/components/Paginator.vue";
 
-@Component({
-    components: {
-        ItemSelector,
-        PersonView,
-        FilmTileView,
-        CircleLoader,
-    },
-})
-export default class Home extends Vue {
-    private readonly api = new TMDBApi();
-    private readonly searchService = new SearchService();
-    private selectedActors: Person[] = [];
-    private isSearching = false;
-    private searchResult: FilmTile[] = [];
+    @Component({
+        components: {
+            ItemSelector,
+            PersonView,
+            FilmTileView,
+            CircleLoader,
+            Paginator,
+        },
+    })
+    export default class Home extends Vue {
+        private readonly api = new TMDBApi();
+        private readonly searchService = new SearchService();
+        private selectedActors: Person[] = [];
+        private isSearching = false;
+        private searchResult: FilmTile[] = [];
+        private pageSize = 9;
+        private currentPage = 1;
 
-    private async onSearchChange(text: string) {
-        if (text.length === 0) {
-            return [];
-        } else {
-            return await this.api.findPeople(text);
+        private async onSearchChange(text: string) {
+            if (text.length === 0) {
+                return [];
+            } else {
+                return await this.api.findPeople(text);
+            }
         }
-    }
 
-    private onSelect(person: Person) {
-        if (this.selectedActors.map((p) => p.id).indexOf(person.id) === -1) {
-            this.selectedActors.push(person);
+        private onSelect(person: Person) {
+            if (this.selectedActors.map((p) => p.id).indexOf(person.id) === -1) {
+                this.selectedActors.push(person);
+            }
         }
-    }
 
-    private onDelete(person: Person) {
-        this.selectedActors = this.selectedActors.filter((p) => p.id !== person.id);
-    }
-
-    private startSearch() {
-        if (!this.isSearching) {
-            this.isSearching = true;
-            this.searchResult = [];
-            this.searchService.searchFilms(this.selectedActors)
-                .then((filmTiles) => {
-                    this.searchResult = filmTiles;
-                    this.isSearching = false;
-                });
+        private onDelete(person: Person) {
+            this.selectedActors = this.selectedActors.filter((p) => p.id !== person.id);
         }
-    }
 
-}
+        private onPageChange(page: number) {
+            const container = this.$el.querySelector(".pagination-top");
+            container && container.scrollIntoView({block: "nearest", behavior: "instant"});
+            this.currentPage = page;
+        }
+
+        private startSearch() {
+            if (!this.isSearching) {
+                this.isSearching = true;
+                this.searchResult = [];
+                this.searchService.searchFilms(this.selectedActors)
+                    .then((filmTiles) => {
+                        this.searchResult = filmTiles;
+                        this.currentPage = 1;
+                        this.isSearching = false;
+                    });
+            }
+        }
+
+        private range(start: number, end: number) {
+            const res = [];
+            for (let i = start; i <= end; i++) {
+                res.push(i);
+            }
+            return res;
+        }
+
+    }
 </script>
 
 <style>

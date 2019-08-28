@@ -18,17 +18,17 @@
 </template>
 
 <script lang="ts">
-import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
-import PersonModel from '@/models/Person';
+    import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
+    import PersonModel from '@/models/Person';
 
-@Component
-export default class Person extends Vue {
-    @Prop() private person!: PersonModel;
+    @Component
+    export default class Person extends Vue {
+        @Prop() private person!: PersonModel;
 
-    @Emit('onDelete')
-    private onDelete(item: PersonModel) {
+        @Emit('onDelete')
+        private onDelete(item: PersonModel) {
+        }
     }
-}
 </script>
 
 <style scoped>
