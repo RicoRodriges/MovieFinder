@@ -35,19 +35,19 @@
 </template>
 
 <script lang="ts">
-    import {Component, Prop, Vue} from "vue-property-decorator";
-    import FilmTile from "@/models/FilmTile";
-    import StarRating from "@/components/StarRating.vue";
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import FilmTile from '@/models/FilmTile';
+import StarRating from '@/components/StarRating.vue';
 
-    @Component({
-        components: {
-            StarRating,
-        },
-    })
-    export default class Person extends Vue {
-        @Prop() private filmTile!: FilmTile;
-        private showDetails = false;
-    }
+@Component({
+    components: {
+        StarRating,
+    },
+})
+export default class Person extends Vue {
+    @Prop() private filmTile!: FilmTile;
+    private showDetails = false;
+}
 </script>
 
 <style scoped>

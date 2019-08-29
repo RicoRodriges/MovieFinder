@@ -12,12 +12,14 @@
   "dependencies": {
     "bootstrap": "^4.3.1",
     "core-js": "^2.6.5",
+    "debounce": "^1.2.0",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
     "vue-multiselect": "^2.1.6",
     "vue-property-decorator": "^8.1.0"
   },
   "devDependencies": {
+    "@types/debounce": "^1.2.0",
     "@types/jest": "^23.1.4",
     "@vue/cli-plugin-babel": "^3.11.0",
     "@vue/cli-plugin-e2e-nightwatch": "^3.11.0",
@@ -77,5 +79,18 @@
         "babelConfig": true
       }
     }
+  },
+  "gitHooks": {
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "vue-cli-service lint",
+      "git add"
+    ],
+    "*.vue": [
+      "vue-cli-service lint",
+      "git add"
+    ]
   }
 }

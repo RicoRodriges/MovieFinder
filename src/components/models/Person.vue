@@ -27,6 +27,7 @@
 
         @Emit('onDelete')
         private onDelete(item: PersonModel) {
+            return;
         }
     }
 </script>

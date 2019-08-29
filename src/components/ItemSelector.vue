@@ -3,7 +3,7 @@
                  :internal-search="false"
                  :placeholder="placeholder"
                  :options="items"
-                 @search-change="onSearchCustom"
+                 @search-change="onChangeDebounce"
                  @select="onSelect"
                  :option-height="104"
                  :show-labels="false"
@@ -17,32 +17,49 @@
 </template>
 
 <script lang="ts">
-    import {Component, Prop, Vue} from 'vue-property-decorator';
-    import Multiselect from 'vue-multiselect';
+import {Component, Prop, Vue} from 'vue-property-decorator';
+import Multiselect from 'vue-multiselect';
+import {debounce} from 'debounce';
 
-    @Component({
-        components: {
-            Multiselect,
-        },
-    })
-    export default class ItemSelector extends Vue {
-        @Prop() private placeholder!: string;
-        @Prop() private emptyPlaceholder!: string;
-        @Prop() private notFoundPlaceholder!: string;
-        @Prop() private onSearchChange!: (text: string) => Promise<any>;
-        @Prop() private onSelect!: (item: any) => void;
-        private isLoading = false;
-        private items = [];
+@Component({
+    components: {
+        Multiselect,
+    },
+})
+export default class ItemSelector extends Vue {
+    @Prop() private placeholder!: string;
+    @Prop() private emptyPlaceholder!: string;
+    @Prop() private notFoundPlaceholder!: string;
+    @Prop() private onSearchChange!: (text: string) => Promise<any>;
+    @Prop() private changeDebounceTime!: number;
+    @Prop() private onSelect!: (item: any) => void;
+    private isLoading = false;
+    private items = [];
+    private onChangeDebounce!: any;
 
-        private onSearchCustom(text: string) {
-            this.isLoading = true;
-            this.onSearchChange(text)
-                .then((v) => {
-                    this.items = v;
-                    this.isLoading = false;
-                });
+    private created() {
+        if (this.changeDebounceTime) {
+            this.onChangeDebounce = debounce(this.onSearchCustom, this.changeDebounceTime);
+        } else {
+            this.onChangeDebounce = this.onSearchCustom;
         }
     }
+
+    private beforeDestroy() {
+        if (this.onChangeDebounce.clear) {
+            this.onChangeDebounce.clear();
+        }
+    }
+
+    private onSearchCustom(text: string) {
+        this.isLoading = true;
+        this.onSearchChange(text)
+            .then((v) => {
+                this.items = v;
+                this.isLoading = false;
+            });
+    }
+}
 </script>
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
