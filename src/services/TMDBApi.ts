@@ -15,7 +15,7 @@ export default class TMDBApi {
         });
         if (response.total_results > 0) {
             return response.results
-                .map((r) => new Person(r.id, r.name, r.popularity,
+                .map((r: any) => new Person(r.id, r.name, r.popularity,
                     r.profile_path ? ('https://image.tmdb.org/t/p/w500/' + r.profile_path) : undefined))
                 .sort((a: Person, b: Person) => b.popularity - a.popularity);
         }
@@ -28,7 +28,7 @@ export default class TMDBApi {
             language: this.language,
         });
         return response.cast
-            .map((r) => new Film(r.id, r.title, r.overview,
+            .map((r: any) => new Film(r.id, r.title, r.overview,
                 r.poster_path ? ('https://image.tmdb.org/t/p/w500/' + r.poster_path) : undefined,
                 r.popularity, r.vote_count, r.vote_average, new Date(r.release_date)));
     }
