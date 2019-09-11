@@ -73,6 +73,7 @@ import MovieTile from '@/models/MovieTile';
 import MovieTileView from '@/components/models/MovieTile.vue';
 import Paginator from '@/components/Paginator.vue';
 import multiSort from '@/utils/Sorting';
+import StorageService from '@/services/StorageService';
 
 @Component({
     components: {
@@ -86,12 +87,20 @@ import multiSort from '@/utils/Sorting';
 export default class Home extends Vue {
     private readonly api = TMDBApi.getInstance();
     private readonly searchService = SearchService.getInstance();
+    private readonly storageService = StorageService.getInstance();
     private selectedActors: Person[] = [];
     private isSearching = false;
     private searchResult: MovieTile[] = [];
     private pageSize = 9;
     private currentPage = 1;
     private sortField = 'popularity';
+
+    public created() {
+        this.storageService.getActorList()
+            .then((actors) => {
+                this.selectedActors = actors;
+            });
+    }
 
     get sortedSearchResult() {
         return multiSort(this.searchResult, 'people.length:desc', `movie.${this.sortField}:desc`);
@@ -101,7 +110,8 @@ export default class Home extends Vue {
         if (text.length === 0) {
             return [];
         } else {
-            return await this.api.searchPerson(text);
+            return (await this.api.searchPerson(text))
+                .sort((a, b) => b.popularity - a.popularity);
         }
     }
 
@@ -127,6 +137,7 @@ export default class Home extends Vue {
         if (!this.isSearching) {
             this.isSearching = true;
             this.searchResult = [];
+            this.storageService.setActorList(this.selectedActors);
             this.searchService.searchMovies(this.selectedActors)
                 .then((movieTiles) => {
                     this.searchResult = movieTiles;

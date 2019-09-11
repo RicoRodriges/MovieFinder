@@ -31,11 +31,20 @@ export default class TMDBApi {
         });
         if (response.total_results > 0) {
             return response.results
-                .map((r: any) => new Person(r.id, r.name, r.popularity,
-                    r.profile_path ? ('https://image.tmdb.org/t/p/w500/' + r.profile_path) : undefined))
-                .sort((a: Person, b: Person) => b.popularity - a.popularity);
+                .map((r: any) => this.responseToPerson(r));
         }
         return [];
+    }
+
+    public async getPerson(personId: number) {
+        const response = await this._getRequest(`${TMDBApi.apiHost}/person/${personId}`, {
+            api_key: TMDBApi.apiKey,
+            language: TMDBApi.language,
+        });
+        if (response.id !== undefined) {
+            return this.responseToPerson(response);
+        }
+        return null;
     }
 
     public async searchMoviesByPerson(personId: number): Promise<Movie[]> {
@@ -84,5 +93,10 @@ export default class TMDBApi {
                 await new Promise((resolve) => setTimeout(resolve, TMDBApi.timeout));
             }
         }
+    }
+
+    private responseToPerson(response: any) {
+        return new Person(response.id, response.name, response.popularity,
+            response.profile_path ? ('https://image.tmdb.org/t/p/w500/' + response.profile_path) : undefined);
     }
 }
