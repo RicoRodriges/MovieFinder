@@ -1,16 +1,32 @@
 import Person from '@/models/Person';
-import Film from '@/models/Film';
+import Movie from '@/models/Movie';
+import Genre from '@/models/Genre';
 
 export default class TMDBApi {
-    protected readonly apiKey = '3706398aaf547b46e616831a46402288';
-    protected readonly apiHost = 'https://api.themoviedb.org/3';
-    protected readonly timeout = 3000;
-    protected readonly language = 'ru';
 
-    public async findPeople(query: string): Promise<Person[]> {
-        const response = await this._getRequest(this.apiHost + '/search/person', {
-            api_key: this.apiKey,
-            language: this.language,
+    public static getInstance() {
+        if (!this.instance) {
+            this.instance = new TMDBApi();
+        }
+        return this.instance;
+    }
+
+    protected static readonly apiKey = '3706398aaf547b46e616831a46402288';
+    protected static readonly apiHost = 'https://api.themoviedb.org/3';
+    protected static readonly timeout = 3000;
+    protected static readonly language = 'ru';
+    private static instance: TMDBApi;
+
+    protected genreList: Promise<Genre[]>;
+
+    private constructor() {
+        this.genreList = this.getGenreList();
+    }
+
+    public async searchPerson(query: string): Promise<Person[]> {
+        const response = await this._getRequest(TMDBApi.apiHost + '/search/person', {
+            api_key: TMDBApi.apiKey,
+            language: TMDBApi.language,
             query,
         });
         if (response.total_results > 0) {
@@ -22,15 +38,36 @@ export default class TMDBApi {
         return [];
     }
 
-    public async findFilmsByPerson(personId: number): Promise<Film[]> {
-        const response = await this._getRequest(`${this.apiHost}/person/${personId}/movie_credits`, {
-            api_key: this.apiKey,
-            language: this.language,
+    public async searchMoviesByPerson(personId: number): Promise<Movie[]> {
+        const response = await this._getRequest(`${TMDBApi.apiHost}/person/${personId}/movie_credits`, {
+            api_key: TMDBApi.apiKey,
+            language: TMDBApi.language,
         });
-        return response.cast
-            .map((r: any) => new Film(r.id, r.title, r.overview,
-                r.poster_path ? ('https://image.tmdb.org/t/p/w500/' + r.poster_path) : undefined,
-                r.popularity, r.vote_count, r.vote_average, new Date(r.release_date)));
+        return Promise.all(
+            response.cast
+                .map(async (r: any) => new Movie(r.id, r.title, r.overview, await this.getGenres(r.genre_ids),
+                    r.poster_path ? ('https://image.tmdb.org/t/p/w500/' + r.poster_path) : undefined,
+                    r.popularity, r.vote_count, r.vote_average, new Date(r.release_date))),
+        );
+    }
+
+    private async getGenreList(): Promise<Genre[]> {
+        const response = await this._getRequest(TMDBApi.apiHost + '/genre/movie/list', {
+            api_key: TMDBApi.apiKey,
+            language: TMDBApi.language,
+        });
+        return response.genres
+            .map((r: any) => new Genre(r.id, r.name));
+    }
+
+    private async getGenres(ids: number[]): Promise<Genre[]> {
+        if (ids && ids.length > 0) {
+            return this.genreList.then((list) => {
+                return ids.map((id) => list.filter((genre) => genre.id === id)[0])
+                    .filter((g) => g !== undefined);
+            });
+        }
+        return [];
     }
 
     private async _getRequest(url: string, params?: { [k: string]: string; }) {
@@ -44,7 +81,7 @@ export default class TMDBApi {
             if (response.status !== 429) {
                 return await response.json();
             } else {
-                await new Promise((resolve) => setTimeout(resolve, this.timeout));
+                await new Promise((resolve) => setTimeout(resolve, TMDBApi.timeout));
             }
         }
     }

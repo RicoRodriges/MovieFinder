@@ -45,9 +45,9 @@
             </select>
         </div>
         <div v-if="searchResult.length > 0" class="d-flex flex-row flex-wrap justify-content-around">
-            <FilmTileView
+            <MovieTileView
                     v-for="i in range(pageSize*(currentPage - 1), Math.min(searchResult.length, pageSize*currentPage) - 1)"
-                    :filmTile="sortedSearchResult[i]"
+                    :movieTile="sortedSearchResult[i]"
                     style="width: 500px;" class="mt-3"/>
         </div>
         <div class="my-2">
@@ -69,8 +69,8 @@ import CircleLoader from '@/components/CircleLoader.vue';
 import Person from '@/models/Person';
 import PersonView from '@/components/models/Person.vue';
 import SearchService from '@/services/SearchService';
-import FilmTile from '@/models/FilmTile';
-import FilmTileView from '@/components/models/FilmTile.vue';
+import MovieTile from '@/models/MovieTile';
+import MovieTileView from '@/components/models/MovieTile.vue';
 import Paginator from '@/components/Paginator.vue';
 import multiSort from '@/utils/Sorting';
 
@@ -78,30 +78,30 @@ import multiSort from '@/utils/Sorting';
     components: {
         ItemSelector,
         PersonView,
-        FilmTileView,
+        MovieTileView,
         CircleLoader,
         Paginator,
     },
 })
 export default class Home extends Vue {
-    private readonly api = new TMDBApi();
-    private readonly searchService = new SearchService();
+    private readonly api = TMDBApi.getInstance();
+    private readonly searchService = SearchService.getInstance();
     private selectedActors: Person[] = [];
     private isSearching = false;
-    private searchResult: FilmTile[] = [];
+    private searchResult: MovieTile[] = [];
     private pageSize = 9;
     private currentPage = 1;
     private sortField = 'popularity';
 
     get sortedSearchResult() {
-        return multiSort(this.searchResult, 'people.length:desc', `film.${this.sortField}:desc`);
+        return multiSort(this.searchResult, 'people.length:desc', `movie.${this.sortField}:desc`);
     }
 
     private async onSearchChange(text: string) {
         if (text.length === 0) {
             return [];
         } else {
-            return await this.api.findPeople(text);
+            return await this.api.searchPerson(text);
         }
     }
 
@@ -118,7 +118,7 @@ export default class Home extends Vue {
     private onPageChange(page: number) {
         const container = this.$el.querySelector('.pagination-top');
         if (container) {
-            container.scrollIntoView({block: 'nearest', behavior: 'instant'});
+            container.scrollIntoView({block: 'nearest', behavior: 'instant'} as any);
         }
         this.currentPage = page;
     }
@@ -127,9 +127,9 @@ export default class Home extends Vue {
         if (!this.isSearching) {
             this.isSearching = true;
             this.searchResult = [];
-            this.searchService.searchFilms(this.selectedActors)
-                .then((filmTiles) => {
-                    this.searchResult = filmTiles;
+            this.searchService.searchMovies(this.selectedActors)
+                .then((movieTiles) => {
+                    this.searchResult = movieTiles;
                     this.currentPage = 1;
                     this.isSearching = false;
                 });

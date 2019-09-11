@@ -1,37 +1,46 @@
 import TMDBApi from '@/services/TMDBApi';
 import Person from '@/models/Person';
-import Film from '@/models/Film';
-import FilmTile from '@/models/FilmTile';
+import Movie from '@/models/Movie';
+import MovieTile from '@/models/MovieTile';
 
 export default class SearchService {
-    private readonly api = new TMDBApi();
-
-    public async searchFilms(people: Person[]) {
-        const films: Film[] = [];
-        const filmActors: { [k: number]: Person[] } = {};
-        let personIndex = 0;
-        await Promise.all(people.map((p) => this.api.findFilmsByPerson(p.id)))
-            .then((vals) => {
-                vals.forEach((actorFilms) => {
-                    actorFilms.forEach((film) => {
-                        this.addFilm(films, filmActors, film, people[personIndex]);
-                    });
-                    ++personIndex;
-                });
-            });
-        return films.map((f) => new FilmTile(f, filmActors[f.id]))
-            .sort((a, b) => b.people.length - a.people.length);
+    public static getInstance() {
+        if (!this.instance) {
+            this.instance = new SearchService();
+        }
+        return this.instance;
     }
 
-    private addFilm(films: Film[], filmActors: { [k: number]: Person[] }, film: Film, person: Person) {
-        const filmId = film.id;
-        if (filmId in filmActors) {
-            filmActors[filmId].push(person);
+    private static instance: SearchService;
+
+    private readonly api = TMDBApi.getInstance();
+
+    private constructor() {
+    }
+
+    public async searchMovies(people: Person[]) {
+        const movies: Movie[] = [];
+        const movieActors: { [k: number]: Person[] } = {};
+        await Promise.all(people.map((p) => {
+            return this.api.searchMoviesByPerson(p.id)
+                .then((moviesByPerson) => {
+                    moviesByPerson.forEach((movie) => {
+                        this.addMovie(movies, movieActors, movie, p);
+                    });
+                });
+        }));
+        return movies.map((movie) => new MovieTile(movie, movieActors[movie.id]));
+    }
+
+    private addMovie(movies: Movie[], movieActors: { [movieId: number]: Person[] }, movie: Movie, person: Person) {
+        const movieId = movie.id;
+        if (movieId in movieActors) {
+            movieActors[movieId].push(person);
         } else {
-            filmActors[filmId] = [person];
+            movieActors[movieId] = [person];
         }
-        if (!films.some((f) => f.id === film.id)) {
-            films.push(film);
+        if (!movies.some((f) => f.id === movie.id)) {
+            movies.push(movie);
         }
     }
 }
