@@ -23,40 +23,14 @@
         </div>
         <div v-if="!isSearching">
             <button type="button" class="btn btn-success" @click="startSearch">Start search</button>
+            <MovieTileList
+                    :items="searchResult"
+                    :pageSize="pageSize"
+                    :page="currentPage"/>
         </div>
         <div v-else>
             <CircleLoader/>
             Loading...
-        </div>
-        <div class="my-2 pagination-top">
-            <Paginator v-if="searchResult.length > 0"
-                       :displayCount="5"
-                       :pageCount="Math.ceil(searchResult.length / pageSize)"
-                       :currentPage="currentPage"
-                       @onChange="onPageChange"
-                       class="d-inline-block m-auto"/>
-        </div>
-        <div v-if="searchResult.length > 0">
-            Sort by:
-            <select v-model="sortField" class="form-control form-control-sm d-inline ml-2" style="max-width: 130px;">
-                <option value="" disabled>Choose options...</option>
-                <option value="popularity">Popularity</option>
-                <option value="voteAverage">Vote</option>
-            </select>
-        </div>
-        <div v-if="searchResult.length > 0" class="d-flex flex-row flex-wrap justify-content-around">
-            <MovieTileView
-                    v-for="i in range(pageSize*(currentPage - 1), Math.min(searchResult.length, pageSize*currentPage) - 1)"
-                    :movieTile="sortedSearchResult[i]"
-                    style="width: 500px;" class="mt-3"/>
-        </div>
-        <div class="my-2">
-            <Paginator
-                    :displayCount="5"
-                    :pageCount="Math.ceil(searchResult.length / pageSize)"
-                    :currentPage="currentPage"
-                    @onChange="onPageChange"
-                    class="d-inline-block m-auto"/>
         </div>
     </div>
 </template>
@@ -70,41 +44,26 @@ import Person from '@/models/Person';
 import PersonView from '@/components/models/Person.vue';
 import SearchService from '@/services/SearchService';
 import MovieTile from '@/models/MovieTile';
-import MovieTileView from '@/components/models/MovieTile.vue';
-import Paginator from '@/components/Paginator.vue';
-import multiSort from '@/utils/Sorting';
 import StorageService from '@/services/StorageService';
+import MovieTileList from '@/components/MovieTileList.vue';
 
 @Component({
     components: {
         ItemSelector,
         PersonView,
-        MovieTileView,
         CircleLoader,
-        Paginator,
+        MovieTileList,
     },
 })
 export default class Home extends Vue {
     private readonly api = TMDBApi.getInstance();
     private readonly searchService = SearchService.getInstance();
     private readonly storageService = StorageService.getInstance();
-    private selectedActors: Person[] = [];
+    private selectedActors: Person[] = StorageService.getInstance().getActorList();
     private isSearching = false;
     private searchResult: MovieTile[] = [];
     private pageSize = 9;
     private currentPage = 1;
-    private sortField = 'popularity';
-
-    public created() {
-        this.storageService.getActorList()
-            .then((actors) => {
-                this.selectedActors = actors;
-            });
-    }
-
-    get sortedSearchResult() {
-        return multiSort(this.searchResult, 'people.length:desc', `movie.${this.sortField}:desc`);
-    }
 
     private async onSearchChange(text: string) {
         if (text.length === 0) {
@@ -125,14 +84,6 @@ export default class Home extends Vue {
         this.selectedActors = this.selectedActors.filter((p) => p.id !== person.id);
     }
 
-    private onPageChange(page: number) {
-        const container = this.$el.querySelector('.pagination-top');
-        if (container) {
-            container.scrollIntoView({block: 'nearest', behavior: 'instant'} as any);
-        }
-        this.currentPage = page;
-    }
-
     private startSearch() {
         if (!this.isSearching) {
             this.isSearching = true;
@@ -146,15 +97,6 @@ export default class Home extends Vue {
                 });
         }
     }
-
-    private range(start: number, end: number) {
-        const res = [];
-        for (let i = start; i <= end; i++) {
-            res.push(i);
-        }
-        return res;
-    }
-
 }
 </script>
 

@@ -13,27 +13,35 @@
             <h5 class="card-title">{{movieTile.movie.title}}</h5>
             <div v-if="!showDetails" @click="showDetails = true" style="cursor: pointer">Show details...</div>
             <p v-else class="card-text">{{movieTile.movie.overview}}</p>
-        </div>
-        <div>
-            Year: ({{movieTile.movie.releaseDate.getFullYear()}})
-        </div>
-        <div>
-            Genres:
-            <span v-for="genre in movieTile.movie.genres" class="badge badge-secondary mr-1">{{genre.name}}</span>
-        </div>
-        <div>
-            Vote:
-            <StarRating :count="10" :range="10" :score="movieTile.movie.voteAverage"/>
-            ({{movieTile.movie.voteAverage}})
-        </div>
-        <div>
-            Popularity:
-            <StarRating :count="10" :range="50" :score="movieTile.movie.popularity"/>
-            ({{movieTile.movie.popularity}})
-        </div>
-        <div>
-            {{movieTile.people.length}} Actor(s): {{movieTile.people.map((p) => p.name).slice(0, 4).join(', ')}}<span
-                v-if="movieTile.people.length > 4">, and other</span>
+            <div>
+                Year: ({{movieTile.movie.releaseDate.getFullYear()}})
+            </div>
+            <div>
+                Genres:
+                <span v-for="genre in movieTile.movie.genres" class="badge badge-secondary mr-1">{{genre.name}}</span>
+            </div>
+            <div>
+                Vote:
+                <StarRating :count="10" :range="10" :score="movieTile.movie.voteAverage"/>
+                ({{movieTile.movie.voteAverage}})
+            </div>
+            <div>
+                Popularity:
+                <StarRating :count="10" :range="50" :score="movieTile.movie.popularity"/>
+                ({{movieTile.movie.popularity}})
+            </div>
+            <div>
+                {{movieTile.people.length}} Actor(s): {{movieTile.people.map((p) => p.name).slice(0, 4).join(', ')}}<span
+                    v-if="movieTile.people.length > 4">, and other</span>
+            </div>
+            <button v-if="!storageService.isFavorite(movieTile.movie.id)"
+                    @click="addToFavorite(movieTile)"
+                    type="button" class="btn btn-outline-primary">Add to favorite
+            </button>
+            <button v-else
+                    @click="removeFromFavorite(movieTile)"
+                    type="button" class="btn btn-outline-danger">Remove from favorite
+            </button>
         </div>
     </div>
 </template>
@@ -42,6 +50,7 @@
 import {Component, Prop, Vue} from 'vue-property-decorator';
 import MovieTile from '@/models/MovieTile';
 import StarRating from '@/components/StarRating.vue';
+import StorageService from '@/services/StorageService';
 
 @Component({
     components: {
@@ -51,6 +60,17 @@ import StarRating from '@/components/StarRating.vue';
 export default class MovieTileView extends Vue {
     @Prop() private movieTile!: MovieTile;
     private showDetails = false;
+    private storageService = StorageService.getInstance();
+
+    public addToFavorite(tile: MovieTile) {
+        this.storageService.addToFavorite(tile.movie);
+        this.$forceUpdate();
+    }
+
+    public removeFromFavorite(tile: MovieTile) {
+        this.storageService.removeFromFavorite(tile.movie.id);
+        this.$forceUpdate();
+    }
 }
 </script>
 
