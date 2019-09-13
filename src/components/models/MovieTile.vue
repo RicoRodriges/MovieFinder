@@ -30,7 +30,7 @@
                 <StarRating :count="10" :range="50" :score="movieTile.movie.popularity"/>
                 ({{movieTile.movie.popularity}})
             </div>
-            <div>
+            <div v-if="movieTile.people && movieTile.people.length > 0">
                 {{movieTile.people.length}} Actor(s): {{movieTile.people.map((p) => p.name).slice(0, 4).join(', ')}}<span
                     v-if="movieTile.people.length > 4">, and other</span>
             </div>

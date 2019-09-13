@@ -18,6 +18,7 @@
         <div class="d-flex flex-row flex-wrap justify-content-around">
             <MovieTileView
                     v-for="i in range(pageSize*(currentPage - 1), Math.min(items.length, pageSize*currentPage) - 1)"
+                    :key="sortedItems[i].movie.id"
                     :movieTile="sortedItems[i]"
                     style="width: 500px;" class="mt-3"/>
         </div>

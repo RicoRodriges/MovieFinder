@@ -48,9 +48,16 @@ export default class StorageService {
         );
     }
 
-    public getFavorites(): Movie[] {
+    public getFavorites() {
         const list = this.storage.getItem(StorageService.FAVORITE_LIST);
-        return (list != null) ? JSON.parse(list) : [];
+        if (list != null) {
+            const movies: Movie[] = JSON.parse(list);
+            movies.forEach((m) => {
+                m.releaseDate = m.releaseDate ? new Date(m.releaseDate) : undefined;
+            });
+            return movies;
+        }
+        return [];
     }
 
     private setFavorites(list: Movie[]) {
