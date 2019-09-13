@@ -4,9 +4,11 @@
                 :current-page="currentPage.name"
                 :pages="pages.map((p) => p.name)"
                 @onChange="navigate"/>
-        <keep-alive>
-            <component :is="currentPage.component"/>
-        </keep-alive>
+        <div role="main" class="m-1">
+            <keep-alive>
+                <component :is="currentPage.component"/>
+            </keep-alive>
+        </div>
     </div>
 </template>
 

@@ -1,34 +1,42 @@
 <template>
     <div>
+        Actor name:
         <ItemSelector :onSearchChange="onSearchChange"
                       :changeDebounceTime="500"
                       :onSelect="onSelect"
                       placeholder="Input actor name"
                       emptyPlaceholder="Start writing actor name"
-                      notFoundPlaceholder="Actors were not found">
+                      notFoundPlaceholder="Actors were not found"
+                      class="d-inline-block"
+                      style="max-width: 600px;">
             <template v-slot:default="val">
-                <img v-if="val.item.poster" class="option__image d-inline-block align-middle" :src="val.item.poster"
-                     :alt="val.item.name">
-                <img v-else class="option__image d-inline-block align-middle" src="@/assets/no-person.png"
-                     :alt="val.item.name">
+                <div class="d-inline-block align-middle mr-2">
+                    <img v-if="val.item.poster" class="option__image" :src="val.item.poster"
+                         :alt="val.item.name">
+                    <img v-else class="option__image" src="@/assets/no-person.png"
+                         :alt="val.item.name">
+                </div>
                 <div class="option__desc d-inline-block align-middle">
                     <div class="option__title font-weight-bold h3">{{ val.item.name }}</div>
                     <div class="option__small text-muted">Популярность: {{ val.item.popularity }}</div>
                 </div>
             </template>
         </ItemSelector>
-        <h5>Selected actors:</h5>
-        <div class="d-flex flex-row flex-wrap justify-content-around">
-            <PersonView v-for="person in selectedActors" :person="person" @onDelete="onDelete" style="width:200px;"/>
+        <div v-if="selectedActors.length > 0" class="my-3">
+            <h5>Selected actors:</h5>
+            <div class="d-flex flex-row flex-wrap justify-content-around">
+                <PersonView v-for="person in selectedActors" :person="person" @onDelete="onDelete"
+                            style="width:200px;"/>
+            </div>
         </div>
-        <div v-if="!isSearching">
-            <button type="button" class="btn btn-success" @click="startSearch">Start search</button>
+        <div v-if="!isSearching && selectedActors.length > 0">
+            <button type="button" class="btn btn-success my-3" @click="startSearch">Start search</button>
             <MovieTileList
                     :items="searchResult"
                     :pageSize="pageSize"
                     :page="currentPage"/>
         </div>
-        <div v-else>
+        <div v-if="isSearching">
             <CircleLoader/>
             Loading...
         </div>

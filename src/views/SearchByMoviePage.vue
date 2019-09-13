@@ -1,34 +1,41 @@
 <template>
     <div>
+        Movie name:
         <ItemSelector :onSearchChange="onSearchChange"
                       :changeDebounceTime="500"
                       :onSelect="onSelect"
                       placeholder="Input movie name"
                       emptyPlaceholder="Start writing movie name"
-                      notFoundPlaceholder="Movies were not found">
+                      notFoundPlaceholder="Movies were not found"
+                      class="d-inline-block"
+                      style="max-width: 600px;">
             <template v-slot:default="val">
-                <img v-if="val.item.poster" class="option__image d-inline-block align-middle" :src="val.item.poster"
-                     :alt="val.item.title">
-                <img v-else class="option__image d-inline-block align-middle" src="@/assets/no-person.png"
-                     :alt="val.item.title">
+                <div class="d-inline-block align-middle mr-2">
+                    <img v-if="val.item.poster" class="option__image" :src="val.item.poster"
+                         :alt="val.item.title">
+                    <img v-else class="option__image" src="@/assets/no-person.png"
+                         :alt="val.item.title">
+                </div>
                 <div class="option__desc d-inline-block align-middle">
                     <div class="option__title font-weight-bold h3">{{ val.item.title }}</div>
                     <div class="option__small text-muted">Популярность: {{ val.item.popularity }}</div>
                 </div>
             </template>
         </ItemSelector>
-        <h5>Selected movies:</h5>
-        <div class="d-flex flex-row flex-wrap justify-content-around">
-            <MovieView v-for="movie in selectedMovies" :movie="movie" @onDelete="onDelete" style="width:200px;"/>
+        <div v-if="selectedMovies.length > 0" class="my-3">
+            <h5>Selected movies:</h5>
+            <div class="d-flex flex-row flex-wrap justify-content-around">
+                <MovieView v-for="movie in selectedMovies" :movie="movie" @onDelete="onDelete" style="width:200px;"/>
+            </div>
         </div>
-        <div v-if="!isSearching">
-            <button type="button" class="btn btn-success" @click="startSearch">Start search</button>
+        <div v-if="!isSearching && selectedMovies.length > 0">
+            <button type="button" class="btn btn-success my-3" @click="startSearch">Start search</button>
             <MovieTileList
                     :items="searchResult"
                     :pageSize="pageSize"
                     :page="currentPage"/>
         </div>
-        <div v-else>
+        <div v-if="isSearching">
             <CircleLoader/>
             Loading...
         </div>

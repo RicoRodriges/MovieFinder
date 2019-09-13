@@ -1,5 +1,10 @@
 <template>
     <div class="favorites">
+        <div class="alert alert-danger my-3 mx-2">
+            This site does not store user data.<br/>
+            The favorite list is not synchronized with other devices and
+            will be irrevocably lost after browser data cleaning!
+        </div>
         <MovieTileList
                 :items="favoriteMovies"
                 :pageSize="pageSize"
