@@ -1,6 +1,6 @@
 <template>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">{{name}}</a>
+        <a class="navbar-brand" href="/">{{name}}</a>
         <button class="navbar-toggler" type="button" @click="showMenu = !showMenu">
             <span class="navbar-toggler-icon"></span>
         </button>

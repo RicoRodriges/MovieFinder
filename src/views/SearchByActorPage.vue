@@ -1,5 +1,5 @@
 <template>
-    <div class="home">
+    <div>
         <ItemSelector :onSearchChange="onSearchChange"
                       :changeDebounceTime="500"
                       :onSelect="onSelect"
@@ -55,11 +55,11 @@ import MovieTileList from '@/components/MovieTileList.vue';
         MovieTileList,
     },
 })
-export default class Home extends Vue {
+export default class SearchByActorPage extends Vue {
     private readonly api = TMDBApi.getInstance();
     private readonly searchService = SearchService.getInstance();
     private readonly storageService = StorageService.getInstance();
-    private selectedActors: Person[] = StorageService.getInstance().getActorList();
+    private selectedActors: Person[] = this.storageService.getActorList();
     private isSearching = false;
     private searchResult: MovieTile[] = [];
     private pageSize = 9;
@@ -89,7 +89,7 @@ export default class Home extends Vue {
             this.isSearching = true;
             this.searchResult = [];
             this.storageService.setActorList(this.selectedActors);
-            this.searchService.searchMovies(this.selectedActors)
+            this.searchService.searchMoviesByPeople(this.selectedActors)
                 .then((movieTiles) => {
                     this.searchResult = movieTiles;
                     this.currentPage = 1;

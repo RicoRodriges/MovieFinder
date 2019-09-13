@@ -46,7 +46,7 @@ import multiSort from '@/utils/Sorting';
         Paginator,
     },
 })
-export default class Home extends Vue {
+export default class MovieTileList extends Vue {
     @Prop() private items!: MovieTile[];
     @Prop() private pageSize !: number;
     @Prop() private page!: number;
@@ -54,7 +54,7 @@ export default class Home extends Vue {
     private sortField = 'popularity';
 
     get sortedItems() {
-        return multiSort(this.items, 'people.length:desc', `movie.${this.sortField}:desc`);
+        return multiSort(this.items, 'people.length:desc', 'movies.length:desc', `movie.${this.sortField}:desc`);
     }
 
     private onPageChange(page: number) {

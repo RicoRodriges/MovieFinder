@@ -4,7 +4,7 @@ export default class Movie {
     public id: number;
     public title: string;
     public poster ?: string;
-    public popularity?: number;
+    public popularity: number;
     public voteCount?: number;
     public voteAverage?: number;
     public overview: string;
@@ -12,7 +12,7 @@ export default class Movie {
     public genres: Genre[];
 
     constructor(id: number, title: string, overview: string, genres: Genre[],
-                poster?: string, popularity?: number, voteCount?: number, voteAverage?: number, releaseDate?: Date) {
+                popularity: number, poster?: string, voteCount?: number, voteAverage?: number, releaseDate?: Date) {
         this.id = id;
         this.title = title;
         this.poster = poster;

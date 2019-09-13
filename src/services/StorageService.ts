@@ -12,6 +12,7 @@ export default class StorageService {
     private static instance: StorageService;
 
     private static readonly ACTOR_LIST = 'actorList';
+    private static readonly MOVIE_LIST = 'movieList';
     private static readonly FAVORITE_LIST = 'favoriteList';
 
     private storage = window.localStorage;
@@ -24,6 +25,18 @@ export default class StorageService {
         const list = this.storage.getItem(StorageService.ACTOR_LIST);
         if (list != null) {
             return JSON.parse(list);
+        }
+        return [];
+    }
+
+    public setMovieList(list: Movie[]) {
+        this.storage.setItem(StorageService.MOVIE_LIST, JSON.stringify(list));
+    }
+
+    public getMovieList(): Movie[] {
+        const list = this.storage.getItem(StorageService.MOVIE_LIST);
+        if (list != null) {
+            return this.movieListFromJSON(list);
         }
         return [];
     }
@@ -51,17 +64,21 @@ export default class StorageService {
     public getFavorites() {
         const list = this.storage.getItem(StorageService.FAVORITE_LIST);
         if (list != null) {
-            const movies: Movie[] = JSON.parse(list);
-            movies.forEach((m) => {
-                m.releaseDate = m.releaseDate ? new Date(m.releaseDate) : undefined;
-            });
-            return movies;
+            return this.movieListFromJSON(list);
         }
         return [];
     }
 
     private setFavorites(list: Movie[]) {
         this.storage.setItem(StorageService.FAVORITE_LIST, JSON.stringify(list));
+    }
+
+    private movieListFromJSON(json: string) {
+        const movies: Movie[] = JSON.parse(json);
+        movies.forEach((m) => {
+            m.releaseDate = m.releaseDate ? new Date(m.releaseDate) : undefined;
+        });
+        return movies;
     }
 
 }

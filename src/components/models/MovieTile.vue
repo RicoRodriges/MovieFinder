@@ -13,7 +13,7 @@
             <h5 class="card-title">{{movieTile.movie.title}}</h5>
             <div v-if="!showDetails" @click="showDetails = true" style="cursor: pointer">Show details...</div>
             <p v-else class="card-text">{{movieTile.movie.overview}}</p>
-            <div>
+            <div v-if="movieTile.movie.releaseDate">
                 Year: ({{movieTile.movie.releaseDate.getFullYear()}})
             </div>
             <div>
@@ -33,6 +33,9 @@
             <div v-if="movieTile.people && movieTile.people.length > 0">
                 {{movieTile.people.length}} Actor(s): {{movieTile.people.map((p) => p.name).slice(0, 4).join(', ')}}<span
                     v-if="movieTile.people.length > 4">, and other</span>
+            </div>
+            <div v-if="movieTile.movies && movieTile.movies.length > 0">
+                Recommended {{movieTile.movies.length}} time(s)
             </div>
             <button v-if="!storageService.isFavorite(movieTile.movie.id)"
                     @click="addToFavorite(movieTile)"

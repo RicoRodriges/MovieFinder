@@ -18,7 +18,7 @@ import MovieTile from '@/models/MovieTile';
         MovieTileList,
     },
 })
-export default class Home extends Vue {
+export default class Favorites extends Vue {
     private favoriteMovies: MovieTile[] = StorageService.getInstance().getFavorites()
         .map((m) => new MovieTile(m, []));
     private pageSize = 9;

@@ -13,6 +13,7 @@ export default class TMDBApi {
 
     protected static readonly apiKey = '3706398aaf547b46e616831a46402288';
     protected static readonly apiHost = 'https://api.themoviedb.org/3';
+    protected static readonly posterPathRoot = 'https://image.tmdb.org/t/p/w500/';
     protected static readonly timeout = 3000;
     protected static readonly language = 'ru';
     private static instance: TMDBApi;
@@ -27,11 +28,28 @@ export default class TMDBApi {
         const response = await this._getRequest(TMDBApi.apiHost + '/search/person', {
             api_key: TMDBApi.apiKey,
             language: TMDBApi.language,
+            include_adult: 'true',
             query,
         });
         if (response.total_results > 0) {
             return response.results
                 .map((r: any) => this.responseToPerson(r));
+        }
+        return [];
+    }
+
+    public async searchMovie(query: string): Promise<Movie[]> {
+        const response = await this._getRequest(TMDBApi.apiHost + '/search/movie', {
+            api_key: TMDBApi.apiKey,
+            language: TMDBApi.language,
+            include_adult: 'true',
+            query,
+        });
+        if (response.total_results > 0) {
+            return Promise.all(
+                response.results
+                    .map(async (r: any) => this.responseToMovie(r)),
+            );
         }
         return [];
     }
@@ -47,6 +65,30 @@ export default class TMDBApi {
         return null;
     }
 
+    public async getRecommendations(movieId: number, page = 1): Promise<Movie[]> {
+        const response = await this._getRequest(`${TMDBApi.apiHost}/movie/${movieId}/recommendations`, {
+            api_key: TMDBApi.apiKey,
+            language: TMDBApi.language,
+            page: page.toString(),
+        });
+        if (response.total_results > 0) {
+            let nextPages: Promise<Movie[]>;
+            if (response.total_pages > page) {
+                nextPages = this.getRecommendations(movieId, page + 1);
+            } else {
+                nextPages = new Promise((a) => a([]));
+            }
+            const result = response.results
+                .map(async (r: any) => this.responseToMovie(r));
+            const moviesFromOtherPages = await nextPages;
+            return Promise.all(result)
+                .then((movies: any) => {
+                    return movies.concat(moviesFromOtherPages);
+                });
+        }
+        return [];
+    }
+
     public async searchMoviesByPerson(personId: number): Promise<Movie[]> {
         const response = await this._getRequest(`${TMDBApi.apiHost}/person/${personId}/movie_credits`, {
             api_key: TMDBApi.apiKey,
@@ -54,9 +96,7 @@ export default class TMDBApi {
         });
         return Promise.all(
             response.cast
-                .map(async (r: any) => new Movie(r.id, r.title, r.overview, await this.getGenres(r.genre_ids),
-                    r.poster_path ? ('https://image.tmdb.org/t/p/w500/' + r.poster_path) : undefined,
-                    r.popularity, r.vote_count, r.vote_average, new Date(r.release_date))),
+                .map(async (r: any) => this.responseToMovie(r)),
         );
     }
 
@@ -95,8 +135,14 @@ export default class TMDBApi {
         }
     }
 
-    private responseToPerson(response: any) {
-        return new Person(response.id, response.name, response.popularity,
-            response.profile_path ? ('https://image.tmdb.org/t/p/w500/' + response.profile_path) : undefined);
+    private responseToPerson(r: any) {
+        return new Person(r.id, r.name, r.popularity,
+            r.profile_path ? (TMDBApi.posterPathRoot + r.profile_path) : undefined);
+    }
+
+    private async responseToMovie(r: any) {
+        return new Movie(r.id, r.title, r.overview, await this.getGenres(r.genre_ids), r.popularity,
+            r.poster_path ? (TMDBApi.posterPathRoot + r.poster_path) : undefined,
+            r.vote_count, r.vote_average, new Date(r.release_date));
     }
 }
