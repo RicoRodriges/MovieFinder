@@ -1,7 +1,9 @@
 <template>
     <div class="d-inline" :title="score">
-    <span v-for="index in count"
-          :class="{ fa: true, 'fa-star': true, 'fa-star-checked': count/range*score >= index }"></span>
+    <span v-for="index in count">
+        <img v-if="count/range*score >= index" src="@/assets/star-checked.svg" class="star">
+        <img v-else src="@/assets/star.svg" class="star">
+    </span>
     </div>
 </template>
 
@@ -17,7 +19,7 @@ export default class StarRating extends Vue {
 </script>
 
 <style scoped>
-    .fa-star-checked {
-        color: orange;
+    .star {
+        width: 1rem;
     }
 </style>

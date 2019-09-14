@@ -2,7 +2,6 @@ import Vue from 'vue';
 import i18n from './translation-plugin';
 import App from './App.vue';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'font-awesome/css/font-awesome.css';
 
 Vue.config.productionTip = false;
 
