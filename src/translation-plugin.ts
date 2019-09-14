@@ -69,9 +69,11 @@ function findLocale(availableLocales: string[], language: string) {
 }
 
 export function setLocale(l: string, i18n: VueI18n) {
-    locale = l;
-    setCookie('lang', l, {'max-age': 3600 * 24 * 30});
-    i18n.locale = l;
+    if (getLocale() !== l) {
+        locale = l;
+        setCookie('lang', l, {'max-age': 3600 * 24 * 30});
+        i18n.locale = l;
+    }
 }
 
 export default new VueI18n({

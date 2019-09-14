@@ -16,16 +16,15 @@ export default class TMDBApi {
     protected static readonly apiHost = 'https://api.themoviedb.org/3';
     protected static readonly posterPathRoot = 'https://image.tmdb.org/t/p/w500/';
     protected static readonly timeout = 3000;
+
     protected static getLanguage() {
         return getLocale();
     }
+
     private static instance: TMDBApi;
 
-    protected genreList: Promise<Genre[]>;
-
-    private constructor() {
-        this.genreList = this.getGenreList();
-    }
+    protected genreList!: Promise<Genre[]>;
+    protected genreListLocale!: string;
 
     public async searchPerson(query: string): Promise<Person[]> {
         const response = await this._getRequest(TMDBApi.apiHost + '/search/person', {
@@ -104,17 +103,22 @@ export default class TMDBApi {
     }
 
     private async getGenreList(): Promise<Genre[]> {
-        const response = await this._getRequest(TMDBApi.apiHost + '/genre/movie/list', {
-            api_key: TMDBApi.apiKey,
-            language: TMDBApi.getLanguage(),
-        });
-        return response.genres
-            .map((r: any) => new Genre(r.id, r.name));
+        if (this.genreListLocale !== TMDBApi.getLanguage()) {
+            this.genreListLocale = TMDBApi.getLanguage();
+            this.genreList = this._getRequest(TMDBApi.apiHost + '/genre/movie/list', {
+                api_key: TMDBApi.apiKey,
+                language: this.genreListLocale,
+            }).then((response) => {
+                return response.genres
+                    .map((r: any) => new Genre(r.id, r.name));
+            });
+        }
+        return this.genreList;
     }
 
     private async getGenres(ids: number[]): Promise<Genre[]> {
         if (ids && ids.length > 0) {
-            return this.genreList.then((list) => {
+            return this.getGenreList().then((list) => {
                 return ids.map((id) => list.filter((genre) => genre.id === id)[0])
                     .filter((g) => g !== undefined);
             });
