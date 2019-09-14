@@ -5,7 +5,7 @@
                 <img v-if="movieTile.movie.poster" class="card-img-top m-auto d-inline-block w-auto"
                      :src="movieTile.movie.poster"
                      :alt="movieTile.movie.title">
-                <img v-else class="card-img-top m-auto d-inline-block w-auto" src="@/assets/no-person.png"
+                <img v-else class="card-img-top m-auto d-inline-block w-auto" src="@/assets/no-movie.svg"
                      :alt="movieTile.movie.title">
             </a>
         </div>

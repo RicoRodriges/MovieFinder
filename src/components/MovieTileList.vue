@@ -76,5 +76,5 @@ export default class MovieTileList extends Vue {
 }
 </script>
 
-<style>
+<style scoped>
 </style>

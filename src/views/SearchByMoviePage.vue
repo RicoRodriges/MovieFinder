@@ -13,7 +13,7 @@
                 <div class="d-inline-block align-middle mr-2">
                     <img v-if="val.item.poster" class="option__image" :src="val.item.poster"
                          :alt="val.item.title">
-                    <img v-else class="option__image" src="@/assets/no-person.png"
+                    <img v-else class="option__image" src="@/assets/no-movie.svg"
                          :alt="val.item.title">
                 </div>
                 <div class="option__desc d-inline-block align-middle">
@@ -107,8 +107,8 @@ export default class SearchByMoviePage extends Vue {
 }
 </script>
 
-<style>
+<style scoped>
     .option__image {
-        max-height: 120px;
+        height: 120px;
     }
 </style>

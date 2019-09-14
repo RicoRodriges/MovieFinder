@@ -7,7 +7,7 @@
             <a :href="`https://www.themoviedb.org/movie/${movie.id}?language=${$i18n.locale}`" target="_blank">
                 <img v-if="movie.poster" class="card-img-top m-auto d-inline-block w-auto" :src="movie.poster"
                      :alt="movie.title">
-                <img v-else class="card-img-top m-auto d-inline-block w-auto" src="@/assets/no-person.png"
+                <img v-else class="card-img-top m-auto d-inline-block w-auto" src="@/assets/no-movie.svg"
                      :alt="movie.title">
             </a>
         </div>
