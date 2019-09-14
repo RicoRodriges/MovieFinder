@@ -14,8 +14,8 @@
                 </li>
             </ul>
             <div class="d-inline-block">
-                <img src="@/assets/en.svg" class="flag mx-2" alt="en" title="English" @click="$i18n.locale = 'en'">
-                <img src="@/assets/ru.svg" class="flag mx-2" alt="ru" title="Русский" @click="$i18n.locale = 'ru'">
+                <img src="@/assets/en.svg" class="flag mx-2" alt="en" title="English" @click="setLocale('en', $i18n)">
+                <img src="@/assets/ru.svg" class="flag mx-2" alt="ru" title="Русский" @click="setLocale('ru', $i18n)">
             </div>
         </div>
     </nav>
@@ -23,6 +23,7 @@
 
 <script lang="ts">
 import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
+import {setLocale} from '@/translation-plugin';
 
 @Component
 export default class NavBar extends Vue {
@@ -34,6 +35,10 @@ export default class NavBar extends Vue {
     @Emit('onChange')
     public onChange(pageName: string) {
         // emit
+    }
+
+    private setLocale(l: string, i18n: any) {
+        setLocale(l, i18n);
     }
 }
 </script>

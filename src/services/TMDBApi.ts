@@ -1,6 +1,7 @@
 import Person from '@/models/Person';
 import Movie from '@/models/Movie';
 import Genre from '@/models/Genre';
+import {getLocale} from '@/translation-plugin';
 
 export default class TMDBApi {
 
@@ -15,7 +16,9 @@ export default class TMDBApi {
     protected static readonly apiHost = 'https://api.themoviedb.org/3';
     protected static readonly posterPathRoot = 'https://image.tmdb.org/t/p/w500/';
     protected static readonly timeout = 3000;
-    protected static readonly language = 'ru';
+    protected static getLanguage() {
+        return getLocale();
+    }
     private static instance: TMDBApi;
 
     protected genreList: Promise<Genre[]>;
@@ -27,7 +30,7 @@ export default class TMDBApi {
     public async searchPerson(query: string): Promise<Person[]> {
         const response = await this._getRequest(TMDBApi.apiHost + '/search/person', {
             api_key: TMDBApi.apiKey,
-            language: TMDBApi.language,
+            language: TMDBApi.getLanguage(),
             include_adult: 'true',
             query,
         });
@@ -41,7 +44,7 @@ export default class TMDBApi {
     public async searchMovie(query: string): Promise<Movie[]> {
         const response = await this._getRequest(TMDBApi.apiHost + '/search/movie', {
             api_key: TMDBApi.apiKey,
-            language: TMDBApi.language,
+            language: TMDBApi.getLanguage(),
             include_adult: 'true',
             query,
         });
@@ -57,7 +60,7 @@ export default class TMDBApi {
     public async getPerson(personId: number) {
         const response = await this._getRequest(`${TMDBApi.apiHost}/person/${personId}`, {
             api_key: TMDBApi.apiKey,
-            language: TMDBApi.language,
+            language: TMDBApi.getLanguage(),
         });
         if (response.id !== undefined) {
             return this.responseToPerson(response);
@@ -68,7 +71,7 @@ export default class TMDBApi {
     public async getRecommendations(movieId: number, page = 1): Promise<Movie[]> {
         const response = await this._getRequest(`${TMDBApi.apiHost}/movie/${movieId}/recommendations`, {
             api_key: TMDBApi.apiKey,
-            language: TMDBApi.language,
+            language: TMDBApi.getLanguage(),
             page: page.toString(),
         });
         if (response.total_results > 0) {
@@ -92,7 +95,7 @@ export default class TMDBApi {
     public async searchMoviesByPerson(personId: number): Promise<Movie[]> {
         const response = await this._getRequest(`${TMDBApi.apiHost}/person/${personId}/movie_credits`, {
             api_key: TMDBApi.apiKey,
-            language: TMDBApi.language,
+            language: TMDBApi.getLanguage(),
         });
         return Promise.all(
             response.cast
@@ -103,7 +106,7 @@ export default class TMDBApi {
     private async getGenreList(): Promise<Genre[]> {
         const response = await this._getRequest(TMDBApi.apiHost + '/genre/movie/list', {
             api_key: TMDBApi.apiKey,
-            language: TMDBApi.language,
+            language: TMDBApi.getLanguage(),
         });
         return response.genres
             .map((r: any) => new Genre(r.id, r.name));

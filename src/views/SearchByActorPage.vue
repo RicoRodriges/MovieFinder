@@ -25,12 +25,13 @@
         <div v-if="selectedActors.length > 0" class="my-3">
             <h5>{{$tc('actor.selectedNActors', selectedActors.length)}}:</h5>
             <div class="d-flex flex-row flex-wrap justify-content-around">
-                <PersonView v-for="person in selectedActors" :person="person" @onDelete="onDelete"
+                <PersonView v-for="person in selectedActors" :key="person.id" :person="person" @onDelete="onDelete"
                             style="width:200px;"/>
             </div>
         </div>
         <div v-if="!isSearching && selectedActors.length > 0">
-            <button type="button" class="btn btn-success my-3" @click="startSearch">{{$t('general.startSearch')}}</button>
+            <button type="button" class="btn btn-success my-3" @click="startSearch">{{$t('general.startSearch')}}
+            </button>
             <MovieTileList
                     :items="searchResult"
                     :pageSize="pageSize"

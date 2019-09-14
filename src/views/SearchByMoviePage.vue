@@ -25,7 +25,7 @@
         <div v-if="selectedMovies.length > 0" class="my-3">
             <h5>{{$tc('movie.selectedNMovies', selectedMovies.length)}}:</h5>
             <div class="d-flex flex-row flex-wrap justify-content-around">
-                <MovieView v-for="movie in selectedMovies" :movie="movie" @onDelete="onDelete" style="width:200px;"/>
+                <MovieView v-for="movie in selectedMovies" :key="movie.id" :movie="movie" @onDelete="onDelete" style="width:200px;"/>
             </div>
         </div>
         <div v-if="!isSearching && selectedMovies.length > 0">
