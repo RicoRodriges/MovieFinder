@@ -1,12 +1,12 @@
 <template>
     <div>
-        Movie name:
+        {{$t('movie.movieName')}}:
         <ItemSelector :onSearchChange="onSearchChange"
                       :changeDebounceTime="500"
                       :onSelect="onSelect"
-                      placeholder="Input movie name"
-                      emptyPlaceholder="Start writing movie name"
-                      notFoundPlaceholder="Movies were not found"
+                      :placeholder="$t('movie.placeholder')"
+                      :emptyPlaceholder="$t('movie.emptyPlaceholder')"
+                      :notFoundPlaceholder="$t('movie.notFoundPlaceholder')"
                       class="d-inline-block"
                       style="max-width: 600px;">
             <template v-slot:default="val">
@@ -18,18 +18,18 @@
                 </div>
                 <div class="option__desc d-inline-block align-middle">
                     <div class="option__title font-weight-bold h3">{{ val.item.title }}</div>
-                    <div class="option__small text-muted">Популярность: {{ val.item.popularity }}</div>
+                    <div class="option__small text-muted">{{$t('general.popularity')}}: {{ val.item.popularity }}</div>
                 </div>
             </template>
         </ItemSelector>
         <div v-if="selectedMovies.length > 0" class="my-3">
-            <h5>Selected movies:</h5>
+            <h5>{{$tc('movie.selectedNMovies', selectedMovies.length)}}:</h5>
             <div class="d-flex flex-row flex-wrap justify-content-around">
                 <MovieView v-for="movie in selectedMovies" :movie="movie" @onDelete="onDelete" style="width:200px;"/>
             </div>
         </div>
         <div v-if="!isSearching && selectedMovies.length > 0">
-            <button type="button" class="btn btn-success my-3" @click="startSearch">Start search</button>
+            <button type="button" class="btn btn-success my-3" @click="startSearch">{{$t('general.startSearch')}}</button>
             <MovieTileList
                     :items="searchResult"
                     :pageSize="pageSize"
@@ -37,7 +37,7 @@
         </div>
         <div v-if="isSearching">
             <CircleLoader/>
-            Loading...
+            {{$t('general.loading')}}
         </div>
     </div>
 </template>

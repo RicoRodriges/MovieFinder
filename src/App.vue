@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <NavBar name="Movie finder"
+        <NavBar :siteName="siteName"
                 :current-page="currentPage.name"
                 :pages="pages.map((p) => p.name)"
                 @onChange="navigate"/>
@@ -29,11 +29,12 @@ import SearchByMoviePage from '@/views/SearchByMoviePage.vue';
 })
 export default class App extends Vue {
     private pages = [
-        {name: 'Search by actors', component: SearchByActorPage},
-        {name: 'Search by movies', component: SearchByMoviePage},
-        {name: 'Favorite list', component: Favorites},
+        {name: 'pages.searchByActors', component: SearchByActorPage},
+        {name: 'pages.searchByMovies', component: SearchByMoviePage},
+        {name: 'pages.favorite', component: Favorites},
     ];
     private currentPage = this.pages[0];
+    private siteName = 'siteName';
 
     public navigate(pageName: string) {
         const page = this.pages.find((p) => p.name === pageName);

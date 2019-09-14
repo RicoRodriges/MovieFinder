@@ -8,11 +8,11 @@
                        class="d-inline-block m-auto"/>
         </div>
         <div>
-            Sort by:
+            {{$t('general.sortBy')}}
             <select v-model="sortField" class="form-control form-control-sm d-inline ml-2" style="max-width: 130px;">
-                <option value="" disabled>Choose options...</option>
-                <option value="popularity">Popularity</option>
-                <option value="voteAverage">Vote</option>
+                <option value="" disabled>{{$t('general.chooseOptions')}}</option>
+                <option value="popularity">{{$t('general.popularity')}}</option>
+                <option value="voteAverage">{{$t('general.vote')}}</option>
             </select>
         </div>
         <div class="d-flex flex-row flex-wrap justify-content-around">

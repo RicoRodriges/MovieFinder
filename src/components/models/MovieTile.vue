@@ -1,7 +1,7 @@
 <template>
     <div class="card mx-2">
         <div>
-            <a :href="`https://www.themoviedb.org/movie/${movieTile.movie.id}?language=ru-RU`" target="_blank">
+            <a :href="`https://www.themoviedb.org/movie/${movieTile.movie.id}?language=${$i18n.locale}`" target="_blank">
                 <img v-if="movieTile.movie.poster" class="card-img-top m-auto d-inline-block w-auto"
                      :src="movieTile.movie.poster"
                      :alt="movieTile.movie.title">
@@ -11,39 +11,41 @@
         </div>
         <div class="card-body">
             <h5 class="card-title">{{movieTile.movie.title}}</h5>
-            <div v-if="!showDetails" @click="showDetails = true" style="cursor: pointer">Show details...</div>
+            <div v-if="!showDetails" @click="showDetails = true" style="cursor: pointer">{{$t('general.showDetails')}}</div>
             <p v-else class="card-text">{{movieTile.movie.overview}}</p>
             <div v-if="movieTile.movie.releaseDate">
-                Year: ({{movieTile.movie.releaseDate.getFullYear()}})
+                {{$t('general.year')}}: ({{movieTile.movie.releaseDate.getFullYear()}})
             </div>
             <div>
-                Genres:
+                {{$t('movie.genres')}}:
                 <span v-for="genre in movieTile.movie.genres" class="badge badge-secondary mr-1">{{genre.name}}</span>
             </div>
             <div>
-                Vote:
+                {{$t('general.vote')}}:
                 <StarRating :count="10" :range="10" :score="movieTile.movie.voteAverage"/>
                 ({{movieTile.movie.voteAverage}})
             </div>
             <div>
-                Popularity:
+                {{$t('general.popularity')}}:
                 <StarRating :count="10" :range="50" :score="movieTile.movie.popularity"/>
                 ({{movieTile.movie.popularity}})
             </div>
             <div v-if="movieTile.people && movieTile.people.length > 0">
-                {{movieTile.people.length}} Actor(s): {{movieTile.people.map((p) => p.name).slice(0, 4).join(', ')}}<span
-                    v-if="movieTile.people.length > 4">, and other</span>
+                {{$tc('actor.nActors', movieTile.people.length)}}: {{movieTile.people.map((p) => p.name).slice(0, 4).join(', ')}}
+                <span v-if="movieTile.people.length > 4"> {{$t('general.andOthers')}}</span>
             </div>
             <div v-if="movieTile.movies && movieTile.movies.length > 0">
-                Recommended {{movieTile.movies.length}} time(s)
+                {{$t('general.recommended')}} {{$tc('general.nTimes', movieTile.movies.length)}}
             </div>
             <button v-if="!storageService.isFavorite(movieTile.movie.id)"
                     @click="addToFavorite(movieTile)"
-                    type="button" class="btn btn-outline-primary">Add to favorite
+                    type="button" class="btn btn-outline-primary my-2">
+                {{$t('favorite.add')}}
             </button>
             <button v-else
                     @click="removeFromFavorite(movieTile)"
-                    type="button" class="btn btn-outline-danger">Remove from favorite
+                    type="button" class="btn btn-outline-danger my-2">
+                {{$t('favorite.remove')}}
             </button>
         </div>
     </div>

@@ -1,12 +1,12 @@
 <template>
     <div>
-        Actor name:
+        {{$t('actor.actorName')}}:
         <ItemSelector :onSearchChange="onSearchChange"
                       :changeDebounceTime="500"
                       :onSelect="onSelect"
-                      placeholder="Input actor name"
-                      emptyPlaceholder="Start writing actor name"
-                      notFoundPlaceholder="Actors were not found"
+                      :placeholder="$t('actor.placeholder')"
+                      :emptyPlaceholder="$t('actor.emptyPlaceholder')"
+                      :notFoundPlaceholder="$t('actor.notFoundPlaceholder')"
                       class="d-inline-block"
                       style="max-width: 600px;">
             <template v-slot:default="val">
@@ -17,20 +17,20 @@
                          :alt="val.item.name">
                 </div>
                 <div class="option__desc d-inline-block align-middle">
-                    <div class="option__title font-weight-bold h3">{{ val.item.name }}</div>
-                    <div class="option__small text-muted">Популярность: {{ val.item.popularity }}</div>
+                    <div class="option__title font-weight-bold h3">{{val.item.name}}</div>
+                    <div class="option__small text-muted">{{$t('general.popularity')}}: {{val.item.popularity}}</div>
                 </div>
             </template>
         </ItemSelector>
         <div v-if="selectedActors.length > 0" class="my-3">
-            <h5>Selected actors:</h5>
+            <h5>{{$tc('actor.selectedNActors', selectedActors.length)}}:</h5>
             <div class="d-flex flex-row flex-wrap justify-content-around">
                 <PersonView v-for="person in selectedActors" :person="person" @onDelete="onDelete"
                             style="width:200px;"/>
             </div>
         </div>
         <div v-if="!isSearching && selectedActors.length > 0">
-            <button type="button" class="btn btn-success my-3" @click="startSearch">Start search</button>
+            <button type="button" class="btn btn-success my-3" @click="startSearch">{{$t('general.startSearch')}}</button>
             <MovieTileList
                     :items="searchResult"
                     :pageSize="pageSize"
@@ -38,7 +38,7 @@
         </div>
         <div v-if="isSearching">
             <CircleLoader/>
-            Loading...
+            {{$t('general.loading')}}
         </div>
     </div>
 </template>

@@ -2,16 +2,16 @@
     <nav>
         <ul class="pagination">
             <li v-if="displayCount < pageCount" :class="'page-item ' + (currentPage === 1 ? 'disabled' : '')">
-                <span v-if="currentPage === 1" class="page-link">Previous</span>
-                <a v-else class="page-link" href="#" @click.prevent="onPrev()">Previous</a>
+                <span v-if="currentPage === 1" class="page-link">{{$t('paginator.previous')}}</span>
+                <a v-else class="page-link" href="#" @click.prevent="onPrev()">{{$t('paginator.previous')}}</a>
             </li>
             <li v-for="i in range(rangeStart, rangeEnd)" :class="'page-item ' + (i === currentPage ? 'active' : '')">
                 <span v-if="currentPage === i" class="page-link">{{i}}</span>
                 <a v-else class="page-link" href="#" @click.prevent="onChange(i)">{{i}}</a>
             </li>
             <li v-if="displayCount < pageCount" :class="'page-item ' + (currentPage === pageCount ? 'disabled' : '')">
-                <span v-if="currentPage === pageCount" class="page-link">Next</span>
-                <a v-else class="page-link" href="#" @click.prevent="onNext()">Next</a>
+                <span v-if="currentPage === pageCount" class="page-link">{{$t('paginator.next')}}</span>
+                <a v-else class="page-link" href="#" @click.prevent="onNext()">{{$t('paginator.next')}}</a>
             </li>
         </ul>
     </nav>

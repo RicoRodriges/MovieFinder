@@ -4,7 +4,7 @@
             <span>&times;</span>
         </button>
         <div>
-            <a :href="`https://www.themoviedb.org/person/${person.id}?language=ru`" target="_blank">
+            <a :href="`https://www.themoviedb.org/person/${person.id}?language=${$i18n.locale}`" target="_blank">
                 <img v-if="person.poster" class="card-img-top m-auto d-inline-block w-auto" :src="person.poster"
                      :alt="person.name">
                 <img v-else class="card-img-top m-auto d-inline-block w-auto" src="@/assets/no-person.png"
