@@ -22,6 +22,8 @@ export default {
             genres: 'Genres',
             movieName: 'Movie name',
             selectedNMovies: 'Selected 0 movie | Selected 1 movie | Selected {n} movies | Selected {n} movies',
+            trailer: 'trailer',
+            findTrailer: 'Find trailer',
         },
         paginator: {
             previous: 'Previous',
@@ -73,6 +75,8 @@ export default {
             genres: 'Жанры',
             movieName: 'Название фильма',
             selectedNMovies: 'Выбрано 0 фильмов | Выбран 1 фильм | Выбрано {n} фильма | Выбрано {n} фильмов',
+            trailer: 'трейлер',
+            findTrailer: 'Найти трейлер',
         },
         paginator: {
             previous: 'Предыдущая',

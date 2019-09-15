@@ -37,16 +37,23 @@
             <div v-if="movieTile.movies && movieTile.movies.length > 0">
                 {{$t('general.recommended')}} {{$tc('general.nTimes', movieTile.movies.length)}}
             </div>
-            <button v-if="!storageService.isFavorite(movieTile.movie.id)"
-                    @click="addToFavorite(movieTile)"
-                    type="button" class="btn btn-outline-primary my-2">
-                {{$t('favorite.add')}}
-            </button>
-            <button v-else
-                    @click="removeFromFavorite(movieTile)"
-                    type="button" class="btn btn-outline-danger my-2">
-                {{$t('favorite.remove')}}
-            </button>
+            <div class="my-2">
+                <button v-if="!storageService.isFavorite(movieTile.movie.id)"
+                        @click="addToFavorite(movieTile)"
+                        type="button" class="btn btn-outline-primary my-1 mx-auto d-block">
+                    {{$t('favorite.add')}}
+                </button>
+                <button v-else
+                        @click="removeFromFavorite(movieTile)"
+                        type="button" class="btn btn-outline-danger my-1 mx-auto d-block">
+                    {{$t('favorite.remove')}}
+                </button>
+                <a :href="`https://youtube.com/results?search_query=${encodeURIComponent(movieTile.movie.title + ' ' + $t('movie.trailer'))}`"
+                   target="_blank"
+                   class="btn btn-outline-primary my-1">
+                    {{$t('movie.findTrailer')}}
+                </a>
+            </div>
         </div>
     </div>
 </template>
