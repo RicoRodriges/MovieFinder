@@ -20,11 +20,18 @@ import MovieTile from '@/models/MovieTile';
     },
 })
 export default class Favorites extends Vue {
-    private favoriteMovies: MovieTile[] = StorageService.getInstance().getFavorites()
-        .map((m) => new MovieTile(m, []));
+    private favoriteMovies: MovieTile[] | null = null;
     private pageSize = 9;
     private currentPage = 1;
 
+    private activated() {
+        this.favoriteMovies = StorageService.getInstance().getFavorites()
+            .map((m) => new MovieTile(m, []));
+    }
+
+    private deactivated() {
+        this.favoriteMovies = null;
+    }
 }
 </script>
 
