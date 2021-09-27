@@ -19,7 +19,7 @@ export default class StarRating extends Vue {
     @Prop() private score!: number;
 
     private get checkedStars(): number {
-      return this.score / (this.range * this.count);
+      return (this.score / this.range) * this.count;
     }
 }
 </script>
