@@ -143,7 +143,12 @@ export default class TMDBApi {
 
     private async responseToMovie(r: any, lang: Language) {
       const genres = await this.getGenres(lang);
-      const movieGenres = r.genre_ids.map((v: number) => genres.get(v));
+      let movieGenres: TMDBGenre[];
+      if (r.genres !== undefined) {
+        movieGenres = r.genres.map((v: any) => genres.get(v.id));
+      } else {
+        movieGenres = r.genre_ids.map((v: number) => genres.get(v));
+      }
       return new TMDBMovie(r.id, r.title, r.overview, movieGenres, r.popularity,
         r.poster_path ? new URL(`${TMDBApi.posterPathRoot}/${r.poster_path}`) : undefined,
         r.vote_count, r.vote_average, new Date(r.release_date));
