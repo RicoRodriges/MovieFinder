@@ -13,6 +13,8 @@ export default class SetService {
 
   protected static readonly ID_COLUMN = 'ID';
 
+  protected static readonly UTF8_BOM = '\ufeff';
+
   private async exportToFile<T>(
     items: T[],
     filename: string,
@@ -24,7 +26,7 @@ export default class SetService {
       data.push([toID(it), toName(it)]);
     }
     const csv = exportToCsv(data);
-    download(csv, filename, 'text/csv');
+    download(SetService.UTF8_BOM + csv, filename, 'text/csv');
   }
 
   private async importFromFile<T>(
