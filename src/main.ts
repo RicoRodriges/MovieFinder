@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import i18n from './translation-plugin';
+import i18n from './translation';
 import App from './App.vue';
 import 'bootstrap/dist/css/bootstrap.min.css';
 

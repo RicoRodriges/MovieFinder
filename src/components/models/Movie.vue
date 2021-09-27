@@ -4,7 +4,7 @@
             <span>&times;</span>
         </button>
         <div>
-            <a :href="`https://www.themoviedb.org/movie/${movie.id}?language=${$i18n.locale}`" target="_blank">
+            <a :href="getUrl(movie.id)" target="_blank">
                 <img v-if="movie.poster" class="card-img-top m-auto d-inline-block w-auto" :src="movie.poster"
                      :alt="movie.title">
                 <img v-else class="card-img-top m-auto d-inline-block w-auto" src="@/assets/no-movie.svg"
@@ -18,12 +18,25 @@
 </template>
 
 <script lang="ts">
-import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
+import { tmdbApi } from '@/api/tmdb';
+import { MovieId } from '@/api/tmdb/TMDBMovie';
+import { Language } from '@/models/Language';
 import MovieModel from '@/models/Movie';
+import { generalModule } from '@/store/general-module';
+import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 
 @Component
 export default class Movie extends Vue {
+    private readonly api = tmdbApi;
     @Prop() private movie!: MovieModel;
+
+    private get lang(): Language {
+        return generalModule.state.lang;
+    }
+
+    private getUrl(id: MovieId): URL {
+        return this.api.getMovieUrl(id, this.lang);
+    }
 
     @Emit('onDelete')
     private onDelete(item: MovieModel) {

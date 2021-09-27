@@ -1,11 +1,13 @@
+import { Language } from '@/models/Language';
+
 export default {
-    en: {
+    [Language.EN]: {
         lang: 'English',
         siteName: 'Movie finder',
         message: {
             cache_warning: 'This site does not store user data.<br/>' +
-                'The favorite list is not synchronized with other devices and will be irrevocably ' +
-                'lost after browser data cleaning!',
+                'Actor and movie sets are not synchronized with other devices and will be irrevocably ' +
+                'lost after web page refreshing!',
         },
         actor: {
             placeholder: 'Input actor name',
@@ -14,6 +16,9 @@ export default {
             nActors: '0 actor | 1 actor | {n} actors | {n} actors',
             actorName: 'Actor name',
             selectedNActors: 'Selected 0 actor | Selected 1 actor | Selected {n} actors | Selected {n} actors',
+            clearList: 'Remove all actors',
+            appendToList: 'Append from actor set',
+            appendToSet: 'Append to actor set',
         },
         movie: {
             placeholder: 'Input movie name',
@@ -24,14 +29,26 @@ export default {
             selectedNMovies: 'Selected 0 movie | Selected 1 movie | Selected {n} movies | Selected {n} movies',
             trailer: 'trailer',
             findTrailer: 'Find trailer',
+            clearList: 'Remove all movies',
+            appendToList: 'Append from movie set',
+            appendToSet: 'Append to movie set',
+            showAll: 'Show all movies',
+            excludeMovies: 'Exclude movies in set',
         },
         paginator: {
             previous: 'Previous',
             next: 'Next',
         },
+        filter: {
+            filters: 'Filters',
+            chooseGenresToExclude: 'Choose genres to exclude',
+            year: 'Year:',
+            validYearRange: 'Valid year range is {min} - {max}',
+            sort: 'Sorting',
+            sortBy: 'Sort by',
+        },
         general: {
             popularity: 'Popularity',
-            sortBy: 'Sort by',
             vote: 'Vote',
             chooseOptions: 'Choose options...',
             year: 'Year',
@@ -42,23 +59,26 @@ export default {
             loading: 'Loading...',
             startSearch: 'Start search',
         },
-        favorite: {
-            add: 'Add to favorite',
-            remove: 'Remove from favorite',
+        set: {
+            import: 'Import from file',
+            export: 'Export to file',
+            add: 'Add to set',
+            remove: 'Remove from set',
         },
         pages: {
-            favorite: 'Favorite list',
+            movieSet: 'Movie set',
+            actorSet: 'Actor set',
             searchByActors: 'Search by actors',
             searchByMovies: 'Search by movies',
         },
     },
-    ru: {
+    [Language.RU]: {
         lang: 'Русский',
         siteName: 'Поисковик фильмов',
         message: {
             cache_warning: 'Сайт не хранит пользовательские данные.<br/>' +
-                'Список избранного не синхронизируется с другими устройствами и будет безвозвратно ' +
-                'утерян после очистки данных браузера!',
+                'Коллекции не синхронизируется с другими устройствами и будут безвозвратно ' +
+                'утерян после обновления страницы!',
         },
         actor: {
             placeholder: 'Введите имя актёра',
@@ -67,6 +87,9 @@ export default {
             nActors: '0 актёров | 1 актёр | {n} актёра | {n} актёров',
             actorName: 'Имя актёра',
             selectedNActors: 'Выбрано 0 актёров | Выбран 1 актёр | Выбрано {n} актёра | Выбрано {n} актёров',
+            clearList: 'Очистить список актёров',
+            appendToList: 'Добавить из коллекции',
+            appendToSet: 'Добавить в коллекцию',
         },
         movie: {
             placeholder: 'Введите название фильма',
@@ -77,14 +100,26 @@ export default {
             selectedNMovies: 'Выбрано 0 фильмов | Выбран 1 фильм | Выбрано {n} фильма | Выбрано {n} фильмов',
             trailer: 'трейлер',
             findTrailer: 'Найти трейлер',
+            clearList: 'Очистить список фильмов',
+            appendToList: 'Добавить из коллекции',
+            appendToSet: 'Добавить в коллекцию',
+            showAll: 'Показать все фильмы',
+            excludeMovies: 'Исключить фильмы в коллекции',
         },
         paginator: {
             previous: 'Предыдущая',
             next: 'Следующая',
         },
+        filter: {
+            filters: 'Фильтры',
+            chooseGenresToExclude: 'Выберите жанры для исключения',
+            year: 'Год:',
+            validYearRange: 'Валидный промежуток {min} - {max} лет',
+            sort: 'Сортировка',
+            sortBy: 'Сортировать по',
+        },
         general: {
             popularity: 'Популярность',
-            sortBy: 'Сортировать по',
             vote: 'Рейтинг',
             chooseOptions: 'Выберите поле...',
             year: 'Год',
@@ -96,12 +131,15 @@ export default {
             loading: 'Загрузка...',
             startSearch: 'Начать поиск',
         },
-        favorite: {
-            add: 'Добавить в избранное',
-            remove: 'Удалить из избранного',
+        set: {
+            import: 'Загрузить из файла',
+            export: 'Выгрузить в файл',
+            add: 'Добавить в коллекцию',
+            remove: 'Удалить из коллекции',
         },
         pages: {
-            favorite: 'Избранное',
+            movieSet: 'Коллекция фильмов',
+            actorSet: 'Коллекция актёров',
             searchByActors: 'Поиск по актёрам',
             searchByMovies: 'Поиск по фильмам',
         },

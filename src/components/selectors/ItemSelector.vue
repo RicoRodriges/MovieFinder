@@ -17,25 +17,25 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator';
+import { debounce } from 'debounce';
 import Multiselect from 'vue-multiselect';
-import {debounce} from 'debounce';
+import 'vue-multiselect/dist/vue-multiselect.min.css';
+import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 
 @Component({
     components: {
         Multiselect,
     },
 })
-export default class ItemSelector extends Vue {
+export default class ItemSelector<T> extends Vue {
     @Prop() private placeholder!: string;
     @Prop() private emptyPlaceholder!: string;
     @Prop() private notFoundPlaceholder!: string;
-    @Prop() private onSearchChange!: (text: string) => Promise<any>;
+    @Prop() private suggest!: (text: string) => Promise<T[]>;
     @Prop() private changeDebounceTime!: number;
-    @Prop() private onSelect!: (item: any) => void;
     private isLoading = false;
-    private items = [];
-    private onChangeDebounce!: any;
+    private items: T[] = [];
+    private onChangeDebounce!: ((text: string) => Promise<void>) & any;
 
     private created() {
         if (this.changeDebounceTime) {
@@ -51,18 +51,24 @@ export default class ItemSelector extends Vue {
         }
     }
 
-    private onSearchCustom(text: string) {
-        this.isLoading = true;
-        this.onSearchChange(text)
-            .then((v) => {
-                this.items = v;
+    private async onSearchCustom(text: string): Promise<void> {
+        if (!this.isLoading) {
+            try {
+                this.isLoading = true;
+                this.items = await this.suggest(text);
+            } finally {
                 this.isLoading = false;
-            });
+            }
+        }
+    }
+
+    @Emit('onSelect')
+    private onSelect(item: T) {
+        return;
     }
 }
 </script>
 
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style scoped>
 
 </style>

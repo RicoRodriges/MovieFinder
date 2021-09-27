@@ -1,9 +1,8 @@
-export default class Genre {
-    public id: number;
-    public name: string;
+import { GenreId } from "@/api/tmdb/TMDBGenre";
 
-    constructor(id: number, name: string) {
-        this.id = id;
-        this.name = name;
-    }
+export default class Genre {
+    constructor(
+        public id: GenreId,
+        public name: string,
+    ) { }
 }

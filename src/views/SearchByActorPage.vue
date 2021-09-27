@@ -1,41 +1,28 @@
 <template>
     <div>
-        {{$t('actor.actorName')}}:
-        <ItemSelector :onSearchChange="onSearchChange"
-                      :changeDebounceTime="500"
-                      :onSelect="onSelect"
-                      :placeholder="$t('actor.placeholder')"
-                      :emptyPlaceholder="$t('actor.emptyPlaceholder')"
-                      :notFoundPlaceholder="$t('actor.notFoundPlaceholder')"
-                      class="d-inline-block"
-                      style="max-width: 600px;">
-            <template v-slot:default="val">
-                <div class="d-inline-block align-middle mr-2">
-                    <img v-if="val.item.poster" class="option__image" :src="val.item.poster"
-                         :alt="val.item.name">
-                    <img v-else class="option__image" src="@/assets/no-person.svg"
-                         :alt="val.item.name">
-                </div>
-                <div class="option__desc d-inline-block align-middle">
-                    <div class="option__title font-weight-bold h3">{{val.item.name}}</div>
-                    <div class="option__small text-muted">{{$t('general.popularity')}}: {{val.item.popularity}}</div>
-                </div>
-            </template>
-        </ItemSelector>
-        <div v-if="selectedActors.length > 0" class="my-3">
-            <h5>{{$tc('actor.selectedNActors', selectedActors.length)}}:</h5>
-            <div class="d-flex flex-row flex-wrap justify-content-around">
-                <PersonView v-for="person in selectedActors" :key="person.id" :person="person" @onDelete="onDelete"
-                            style="width:200px;"/>
-            </div>
-        </div>
+        <ActorSelector v-model="selectedActors" :setActions="true"/>
         <div v-if="!isSearching && selectedActors.length > 0">
-            <button type="button" class="btn btn-success my-3" @click="startSearch">{{$t('general.startSearch')}}
-            </button>
-            <MovieTileList
-                    :items="searchResult"
+            <div>
+                <button type="button" class="btn btn-success m-3" @click="startSearch">
+                    {{$t('general.startSearch')}}
+                </button>
+            </div>
+            <MovieFilters v-if="allRecommendations.length > 0" v-model="filter" :genres="genres" :yearRange="yearRange" :sortOptions="sortOptions" />
+            <PageableList
+                    v-if="recommendations.length > 0"
+                    :items="sortedRecommendations"
                     :pageSize="pageSize"
-                    :page="currentPage"/>
+                    :page="currentPage"
+                    @onPageChange="onPageChange">
+                <template slot-scope="props">
+                    <MovieTileView :movie="props.item[1]" style="width: 500px;" class="mt-3">
+                        <div>
+                            {{$tc('actor.nActors', props.item[0].length)}}: {{props.item[0].map((p) => p.name).slice(0, 4).join(', ')}}
+                            <span v-if="props.item[0].length > 4"> {{$t('general.andOthers')}}</span>
+                        </div>
+                    </MovieTileView>
+                </template>
+            </PageableList>
         </div>
         <div v-if="isSearching">
             <CircleLoader/>
@@ -45,72 +32,148 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue} from 'vue-property-decorator';
-import TMDBApi from '@/services/TMDBApi';
-import ItemSelector from '@/components/ItemSelector.vue';
+import { GenreId } from '@/api/tmdb/TMDBGenre';
 import CircleLoader from '@/components/CircleLoader.vue';
+import MovieFilters, { Filters } from '@/components/filters/MovieFilters.vue';
+import MovieTileView from '@/components/models/MovieTile.vue';
+import PageableList from '@/components/pageable/PageableList.vue';
+import ActorSelector from '@/components/selectors/ActorSelector.vue';
+import Genre from '@/models/Genre';
+import { Language } from '@/models/Language';
+import Movie from '@/models/Movie';
 import Person from '@/models/Person';
-import PersonView from '@/components/models/Person.vue';
-import SearchService from '@/services/SearchService';
-import MovieTile from '@/models/MovieTile';
-import StorageService from '@/services/StorageService';
-import MovieTileList from '@/components/MovieTileList.vue';
+import { tmdbRecommendator } from '@/services/TMDBRecommendator';
+import { generalModule } from '@/store/general-module';
+import { movieSetModule } from '@/store/movie-set-module';
+import { moviesByActorsModule } from '@/store/movies-by-actors-module';
+import multiSort from '@/utils/sort';
+import { Component, Vue } from 'vue-property-decorator';
 
 @Component({
     components: {
-        ItemSelector,
-        PersonView,
+        ActorSelector,
         CircleLoader,
-        MovieTileList,
+        MovieTileView,
+        PageableList,
+        MovieFilters,
     },
 })
 export default class SearchByActorPage extends Vue {
-    private readonly api = TMDBApi.getInstance();
-    private readonly searchService = SearchService.getInstance();
-    private readonly storageService = StorageService.getInstance();
-    private selectedActors: Person[] = this.storageService.getActorList();
+    private readonly recommender = tmdbRecommendator;
     private isSearching = false;
-    private searchResult: MovieTile[] = [];
     private pageSize = 9;
     private currentPage = 1;
 
-    private async onSearchChange(text: string) {
-        if (text.length === 0) {
-            return [];
-        } else {
-            return (await this.api.searchPerson(text))
-                .sort((a, b) => b.popularity - a.popularity);
+    private readonly sortOptions = [
+        {id: 'popularity', n: 'general.popularity'},
+        {id: 'voteAverage', n: 'general.vote'},
+        {id: 'releaseDate', n: 'general.year'},
+    ];
+
+    private filter: Filters = {
+        excludeMoviesFromSet: false,
+        excludedGenres: [],
+        years: null,
+        sort: this.sortOptions[0].id,
+    };
+
+    private get selectedActors(): Person[] {
+        return moviesByActorsModule.state.selectedActors;
+    }
+
+    private set selectedActors(v: Person[]) {
+        moviesByActorsModule.mutations.setActors(v);
+    }
+
+    private get allRecommendations(): Array<[Person[], Movie]> {
+        return moviesByActorsModule.state.movies;
+    }
+    private set allRecommendations(v: Array<[Person[], Movie]>) {
+        moviesByActorsModule.mutations.recommend(v);
+        this.currentPage = 1;
+        this.resetFilter();
+    }
+
+    private get recommendations(): Array<[Person[], Movie]> {
+        let values = this.allRecommendations;
+        if (values.length === 0) return values;
+
+        if (this.filter.excludeMoviesFromSet && this.movieSet.length > 0) {
+            const excludedIds = new Set(this.movieSet.map(m => m.id));
+            values = values.filter(m => !excludedIds.has(m[1].id));
         }
-    }
-
-    private onSelect(person: Person) {
-        if (this.selectedActors.map((p) => p.id).indexOf(person.id) === -1) {
-            this.selectedActors.push(person);
+        if (this.filter.excludedGenres.length > 0) {
+            const excludedGenres = new Set(this.filter.excludedGenres.map(g => g.id));
+            values = values.filter(m => m[1].genres.every(g => !excludedGenres.has(g.id)));
         }
+        if (this.filter.years !== null) {
+            const [start, end] = this.filter.years;
+            const dateFilter = (d: Date) => (start === null || d.getFullYear() >= start) && (end === null || d.getFullYear() <= end);
+            values = values.filter(m => m[1].releaseDate === undefined || dateFilter(m[1].releaseDate));
+        }
+
+        return values;
     }
 
-    private onDelete(person: Person) {
-        this.selectedActors = this.selectedActors.filter((p) => p.id !== person.id);
+    private get sortedRecommendations(): Array<[Person[], Movie]> {
+        return multiSort([...this.recommendations], '0.length:desc', `1.${this.filter.sort}:desc`);
     }
 
-    private startSearch() {
+    private get genres(): Genre[] {
+        const genres = new Map<GenreId, Genre>();
+        for (const r of this.allRecommendations) {
+            for (const genre of r[1].genres) {
+                genres.set(genre.id, genre);
+            }
+        }
+        return [...genres.values()].sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    private get yearRange(): [number, number] {
+        let max = 1400;
+        let min = 9000;
+        for (const r of this.allRecommendations) {
+            const year = r[1].releaseDate?.getFullYear();
+            if (year !== undefined) {
+                max = year > max ? year : max;
+                min = year < min ? year : min;
+            }
+        }
+        return [min, max];
+    }
+
+    private get lang(): Language {
+        return generalModule.state.lang;
+    }
+
+    private get movieSet(): Movie[] {
+        return movieSetModule.state.selectedMovies;
+    }
+
+    private onPageChange(page: number) {
+        this.currentPage = page;
+    }
+
+    private async startSearch() {
         if (!this.isSearching) {
-            this.isSearching = true;
-            this.searchResult = [];
-            this.storageService.setActorList(this.selectedActors);
-            this.searchService.searchMoviesByPeople(this.selectedActors)
-                .then((movieTiles) => {
-                    this.searchResult = movieTiles;
-                    this.currentPage = 1;
-                    this.isSearching = false;
-                });
+            try {
+                this.isSearching = true;
+
+                // TODO: reimplement as async action with progress
+                this.allRecommendations = await this.recommender.recommendMoviesByActors(new Set(this.selectedActors), this.lang);
+            } finally {
+                this.isSearching = false;
+            }
         }
+    }
+
+    private resetFilter() {
+        this.filter.excludeMoviesFromSet = false;
+        this.filter.excludedGenres = [];
+        this.filter.years = null;
     }
 }
 </script>
 
 <style scoped>
-    .option__image {
-        height: 120px;
-    }
 </style>

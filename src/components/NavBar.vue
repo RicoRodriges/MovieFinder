@@ -5,25 +5,26 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div :class="'collapse navbar-collapse' + (showMenu ? ' show' : '')">
+        <div class="collapse navbar-collapse" :class="{'show': showMenu}">
             <ul class="navbar-nav mr-auto">
-                <li v-for="pageName in pages"
-                    :class="'nav-item mr-2' + (pageName === currentPage ? ' active' : '')">
-                    <a :class="'nav-link' + (pageName === currentPage ? ' disabled' : '')" href="#"
-                       @click.prevent="onChange(pageName)">{{$t(pageName)}}</a>
+                <li v-for="pageName in pages" :key="pageName" class="nav-item mr-2" :class="{'active': pageName === currentPage}">
+                    <a class="nav-link" :class="{'disabled': pageName === currentPage}" href="#" @click.prevent="onChange(pageName)">
+                        {{$t(pageName)}}
+                    </a>
                 </li>
             </ul>
             <div class="d-inline-block">
-                <img src="@/assets/en.svg" class="flag mx-2" alt="en" title="English" @click="setLocale('en', $i18n)">
-                <img src="@/assets/ru.svg" class="flag mx-2" alt="ru" title="Русский" @click="setLocale('ru', $i18n)">
+                <img src="@/assets/en.svg" class="flag mx-2" alt="en" title="English" @click="changeLocale('en')">
+                <img src="@/assets/ru.svg" class="flag mx-2" alt="ru" title="Русский" @click="changeLocale('ru')">
             </div>
         </div>
     </nav>
 </template>
 
 <script lang="ts">
-import {Component, Emit, Prop, Vue} from 'vue-property-decorator';
-import {setLocale} from '@/translation-plugin';
+import { Language } from '@/models/Language';
+import { generalModule } from '@/store/general-module';
+import { Component, Emit, Prop, Vue } from 'vue-property-decorator';
 
 @Component
 export default class NavBar extends Vue {
@@ -34,11 +35,11 @@ export default class NavBar extends Vue {
 
     @Emit('onChange')
     public onChange(pageName: string) {
-        // emit
+        return;
     }
 
-    private setLocale(l: string, i18n: any) {
-        setLocale(l, i18n);
+    private changeLocale(l: Language) {
+        generalModule.mutations.changeLocale(l);
     }
 }
 </script>

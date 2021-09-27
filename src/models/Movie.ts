@@ -1,26 +1,16 @@
-import Genre from '@/models/Genre';
+import { MovieId } from "@/api/tmdb/TMDBMovie";
+import Genre from "./Genre";
 
 export default class Movie {
-    public id: number;
-    public title: string;
-    public poster ?: string;
-    public popularity: number;
-    public voteCount?: number;
-    public voteAverage?: number;
-    public overview: string;
-    public releaseDate?: Date;
-    public genres: Genre[];
-
-    constructor(id: number, title: string, overview: string, genres: Genre[],
-                popularity: number, poster?: string, voteCount?: number, voteAverage?: number, releaseDate?: Date) {
-        this.id = id;
-        this.title = title;
-        this.poster = poster;
-        this.genres = genres;
-        this.popularity = popularity;
-        this.voteCount = voteCount;
-        this.voteAverage = voteAverage;
-        this.overview = overview;
-        this.releaseDate = releaseDate;
-    }
+    constructor(
+        public readonly id: MovieId,
+        public readonly title: string,
+        public readonly overview: string,
+        public readonly genres: Genre[],
+        public readonly popularity: number,
+        public readonly poster?: URL,
+        public readonly voteCount?: number,
+        public readonly voteAverage?: number,
+        public readonly releaseDate?: Date,
+    ) { }
 }

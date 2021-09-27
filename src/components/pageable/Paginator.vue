@@ -1,15 +1,15 @@
 <template>
     <nav>
         <ul class="pagination">
-            <li v-if="displayCount < pageCount" :class="'page-item ' + (currentPage === 1 ? 'disabled' : '')">
+            <li v-if="displayCount < pageCount" class="page-item" :class="{'disabled': currentPage === 1}">
                 <span v-if="currentPage === 1" class="page-link">{{$t('paginator.previous')}}</span>
                 <a v-else class="page-link" href="#" @click.prevent="onPrev()">{{$t('paginator.previous')}}</a>
             </li>
-            <li v-for="i in range(rangeStart, rangeEnd)" :class="'page-item ' + (i === currentPage ? 'active' : '')">
+            <li v-for="i in range(rangeStart, rangeEnd)" :key="i" class="page-item" :class="{'active': currentPage === i}">
                 <span v-if="currentPage === i" class="page-link">{{i}}</span>
                 <a v-else class="page-link" href="#" @click.prevent="onChange(i)">{{i}}</a>
             </li>
-            <li v-if="displayCount < pageCount" :class="'page-item ' + (currentPage === pageCount ? 'disabled' : '')">
+            <li v-if="displayCount < pageCount" class="page-item" :class="{'disabled': currentPage === pageCount}">
                 <span v-if="currentPage === pageCount" class="page-link">{{$t('paginator.next')}}</span>
                 <a v-else class="page-link" href="#" @click.prevent="onNext()">{{$t('paginator.next')}}</a>
             </li>
@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-    import {Component, Prop, Vue} from 'vue-property-decorator';
+    import { Component, Prop, Vue } from 'vue-property-decorator';
 
     @Component
     export default class Paginator extends Vue {
