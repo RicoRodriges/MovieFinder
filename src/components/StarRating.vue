@@ -13,11 +13,13 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 @Component
 export default class StarRating extends Vue {
     @Prop() private count!: number;
+
     @Prop() private range!: number;
+
     @Prop() private score!: number;
 
     private get checkedStars(): number {
-        return this.score / this.range * this.count;
+      return this.score / (this.range * this.count);
     }
 }
 </script>

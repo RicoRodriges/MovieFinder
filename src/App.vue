@@ -13,37 +13,39 @@
 </template>
 
 <script lang="ts">
+import { Component, Vue } from 'vue-property-decorator';
 import NavBar from '@/components/NavBar.vue';
 import ActorSetPage from '@/views/ActorSetPage.vue';
 import MovieSetPage from '@/views/MovieSetPage.vue';
 import SearchByActorPage from '@/views/SearchByActorPage.vue';
 import SearchByMoviePage from '@/views/SearchByMoviePage.vue';
-import { Component, Vue } from 'vue-property-decorator';
 
 @Component({
-    components: {
-        SearchByMoviePage,
-        NavBar,
-        SearchByActorPage,
-        MovieSetPage,
-        ActorSetPage,
-    },
+  components: {
+    SearchByMoviePage,
+    NavBar,
+    SearchByActorPage,
+    MovieSetPage,
+    ActorSetPage,
+  },
 })
 export default class App extends Vue {
     private pages = [
-        {name: 'pages.searchByActors', component: SearchByActorPage},
-        {name: 'pages.searchByMovies', component: SearchByMoviePage},
-        {name: 'pages.actorSet', component: ActorSetPage},
-        {name: 'pages.movieSet', component: MovieSetPage},
+      { name: 'pages.searchByActors', component: SearchByActorPage },
+      { name: 'pages.searchByMovies', component: SearchByMoviePage },
+      { name: 'pages.actorSet', component: ActorSetPage },
+      { name: 'pages.movieSet', component: MovieSetPage },
     ];
+
     private currentPage = this.pages[0];
+
     private siteName = 'siteName';
 
-    public navigate(pageName: string) {
-        const page = this.pages.find((p) => p.name === pageName);
-        if (page !== undefined) {
-            this.currentPage = page;
-        }
+    public navigate(pageName: string): void {
+      const page = this.pages.find((p) => p.name === pageName);
+      if (page !== undefined) {
+        this.currentPage = page;
+      }
     }
 }
 </script>

@@ -5,7 +5,7 @@ import TMDBGenre from './TMDBGenre';
 export type MovieId = number;
 
 export default class TMDBMovie {
-    constructor(
+  constructor(
         public readonly id: MovieId,
         public readonly title: string,
         public readonly overview: string,
@@ -14,12 +14,12 @@ export default class TMDBMovie {
         public readonly poster?: URL,
         public readonly voteCount?: number,
         public readonly voteAverage?: number,
-        public readonly releaseDate?: Date
-    ) { }
+        public readonly releaseDate?: Date,
+  ) { }
 
-    public toMovie(): Movie {
-        return new Movie(this.id, this.title, this.overview,
-            this.genres.map(g => new Genre(g.id, g.name)), this.popularity, this.poster,
-            this.voteCount, this.voteAverage, this.releaseDate);
-    }
+  public toMovie(): Movie {
+    return new Movie(this.id, this.title, this.overview,
+      this.genres.map((g) => new Genre(g.id, g.name)), this.popularity, this.poster,
+      this.voteCount, this.voteAverage, this.releaseDate);
+  }
 }
