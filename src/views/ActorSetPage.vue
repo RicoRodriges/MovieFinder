@@ -15,33 +15,31 @@
                 {{$t('set.export')}}
             </button>
         </div>
-        <div v-if="inProgress">
-            <CircleLoader/>
-            {{$t('general.loading')}}
-        </div>
+        <ModalProgress v-if="inProgress" :ready="progress[0]" :total="progress[1]"/>
     </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import CircleLoader from '@/components/CircleLoader.vue';
+import ModalProgress from '@/components/ModalProgress.vue';
 import ActorSelector from '@/components/selectors/ActorSelector.vue';
 import { Language } from '@/models/Language';
 import Person from '@/models/Person';
 import { setService } from '@/services/SetService';
+import { ProgressCallback } from '@/services/types';
 import { actorSetModule } from '@/store/actor-set-module';
 import { generalModule } from '@/store/general-module';
 
 @Component({
   components: {
     ActorSelector,
-    CircleLoader,
+    ModalProgress,
   },
 })
 export default class ActorSetPage extends Vue {
     private readonly setService = setService;
 
-    private inProgress = false;
+    private progress: [number, number] | null = null;
 
     private get selectedActors(): Person[] {
       return actorSetModule.state.selectedActors;
@@ -55,26 +53,29 @@ export default class ActorSetPage extends Vue {
       return generalModule.state.lang;
     }
 
+    private get inProgress(): boolean {
+      return this.progress !== null;
+    }
+
     private async onImport() {
       try {
-        this.inProgress = true;
-        const persons = await this.setService.importPersonSetFromFile(this.lang);
+        this.progress = [0, 100];
+        const progressCallback: ProgressCallback = {
+          update: (ready, total) => { this.progress = [ready, total]; },
+        };
+
+        const persons = await this.setService.importPersonSetFromFile(this.lang, progressCallback);
         if (persons !== undefined) {
           this.selectedActors = persons;
         }
       } finally {
-        this.inProgress = false;
+        this.progress = null;
       }
     }
 
     private async onExport() {
-      try {
-        this.inProgress = true;
-        if (this.selectedActors.length > 0) {
-          await this.setService.exportPersonSetToFile(this.selectedActors, 'actors.csv');
-        }
-      } finally {
-        this.inProgress = false;
+      if (this.selectedActors.length > 0) {
+        this.setService.exportPersonSetToFile(this.selectedActors, 'actors.csv');
       }
     }
 }

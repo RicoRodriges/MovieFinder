@@ -4,7 +4,8 @@ import Movie from '@/models/Movie';
 import Person from '@/models/Person';
 import { exportToCsv, importFromCsv } from '@/utils/csv';
 import { download, uploadText } from '@/utils/file';
-import { batch } from '@/utils/request';
+import { batchAsyncGenerator } from '@/utils/request';
+import { ProgressCallback } from './types';
 
 export default class SetService {
   protected readonly api = tmdbApi;
@@ -31,6 +32,7 @@ export default class SetService {
 
   private async importFromFile<T>(
     query: (id: number) => Promise<T | undefined>,
+    progress: ProgressCallback,
   ): Promise<T[] | undefined> {
     const text = await uploadText();
     const csv = importFromCsv(text);
@@ -49,7 +51,14 @@ export default class SetService {
 
       if (ids.size > 0) {
         const actions = [...ids].map((id) => () => query(id));
-        const items = await batch(actions, SetService.MAX_ACTIONS);
+        const total = actions.length;
+        progress.update(0, total);
+
+        const items: Array<T | undefined> = [];
+        for await (const chunk of batchAsyncGenerator(actions, SetService.MAX_ACTIONS)) {
+          items.push(...chunk);
+          progress.update(items.length, total);
+        }
         return items.filter((v) => v !== undefined) as T[];
       }
     }
@@ -60,16 +69,28 @@ export default class SetService {
     this.exportToFile(persons, filename, (p) => p.id.toString(), (p) => p.name);
   }
 
-  public async importPersonSetFromFile(lang: Language): Promise<Person[] | undefined> {
-    return this.importFromFile((id) => this.api.getPerson(id, lang).then((p) => p?.toPerson()));
+  public async importPersonSetFromFile(
+    lang: Language,
+    progress: ProgressCallback,
+  ): Promise<Person[] | undefined> {
+    return this.importFromFile(
+      (id) => this.api.getPerson(id, lang).then((p) => p?.toPerson()),
+      progress,
+    );
   }
 
   public async exportMovieSetToFile(movies: Movie[], filename: string): Promise<void> {
     this.exportToFile(movies, filename, (m) => m.id.toString(), (m) => m.title);
   }
 
-  public async importMovieSetFromFile(lang: Language): Promise<Movie[] | undefined> {
-    return this.importFromFile((id) => this.api.getMovie(id, lang).then((m) => m?.toMovie()));
+  public async importMovieSetFromFile(
+    lang: Language,
+    progress: ProgressCallback,
+  ): Promise<Movie[] | undefined> {
+    return this.importFromFile(
+      (id) => this.api.getMovie(id, lang).then((m) => m?.toMovie()),
+      progress,
+    );
   }
 }
 

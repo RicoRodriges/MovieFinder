@@ -19,21 +19,19 @@ export async function sleep(timeout: number): Promise<void> {
 
 /**
  * Executes actions in parallel and reduces server load
- * @param size max parallel actions
+ * @param chunkSize max parallel actions
+ * @returns fixed size chinks
  */
-export async function batch<T>(
+export async function* batchAsyncGenerator<T>(
   actions: (() => Promise<T>)[],
-  size: number,
+  chunkSize: number,
   pause = 200,
-): Promise<T[]> {
-  let result: T[] = [];
-
+): AsyncGenerator<T[]> {
   /* eslint-disable no-await-in-loop */
-  for (let start = 0; start < actions.length; start += size) {
-    const chunk = actions.slice(start, start + size).map((v) => v());
-    result = result.concat(await Promise.all(chunk));
+  for (let start = 0; start < actions.length; start += chunkSize) {
+    const chunk = actions.slice(start, start + chunkSize).map((v) => v());
+    yield await Promise.all(chunk);
     await sleep(pause);
   }
-
-  return result;
+  /* eslint-enable no-await-in-loop */
 }

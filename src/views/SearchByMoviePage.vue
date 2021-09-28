@@ -26,18 +26,15 @@
                 </template>
             </PageableList>
         </div>
-        <div v-if="isSearching">
-            <CircleLoader/>
-            {{$t('general.loading')}}
-        </div>
+        <ModalProgress v-if="isSearching" :ready="progress[0]" :total="progress[1]"/>
     </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { GenreId } from '@/api/tmdb/TMDBGenre';
-import CircleLoader from '@/components/CircleLoader.vue';
 import MovieFilters, { Filters } from '@/components/filters/MovieFilters.vue';
+import ModalProgress from '@/components/ModalProgress.vue';
 import MovieTileView from '@/components/models/MovieTile.vue';
 import PageableList from '@/components/pageable/PageableList.vue';
 import MovieSelector from '@/components/selectors/MovieSelector.vue';
@@ -45,6 +42,7 @@ import Genre from '@/models/Genre';
 import { Language } from '@/models/Language';
 import Movie from '@/models/Movie';
 import { tmdbRecommendator } from '@/services/TMDBRecommendator';
+import { ProgressCallback } from '@/services/types';
 import { generalModule } from '@/store/general-module';
 import { movieSetModule } from '@/store/movie-set-module';
 import { moviesByMoviesModule } from '@/store/movies-by-movies-module';
@@ -53,16 +51,16 @@ import multiSort from '@/utils/sort';
 @Component({
   components: {
     MovieSelector,
-    CircleLoader,
     MovieTileView,
     PageableList,
     MovieFilters,
+    ModalProgress,
   },
 })
 export default class SearchByMoviePage extends Vue {
     private readonly recommender = tmdbRecommendator;
 
-    private isSearching = false;
+    private progress: [number, number] | null = null;
 
     private pageSize = 9;
 
@@ -71,7 +69,6 @@ export default class SearchByMoviePage extends Vue {
     private readonly sortOptions = [
       { id: 'popularity', n: 'general.popularity' },
       { id: 'voteAverage', n: 'general.vote' },
-      { id: 'releaseDate', n: 'general.year' },
     ];
 
     private filter: Filters = {
@@ -156,6 +153,10 @@ export default class SearchByMoviePage extends Vue {
       return movieSetModule.state.selectedMovies;
     }
 
+    private get isSearching(): boolean {
+      return this.progress !== null;
+    }
+
     private onPageChange(page: number) {
       this.currentPage = page;
     }
@@ -163,14 +164,16 @@ export default class SearchByMoviePage extends Vue {
     private async startSearch() {
       if (!this.isSearching) {
         try {
-          this.isSearching = true;
+          this.progress = [0, 100];
+          const progressCallback: ProgressCallback = {
+            update: (ready, total) => { this.progress = [ready, total]; },
+          };
 
-          // TODO: reimplement as async action with progress
           this.allRecommendations = await this.recommender.recommendMoviesByMovies(
-            new Set(this.selectedMovies), this.lang,
+            new Set(this.selectedMovies), this.lang, progressCallback,
           );
         } finally {
-          this.isSearching = false;
+          this.progress = null;
         }
       }
     }

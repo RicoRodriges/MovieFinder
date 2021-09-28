@@ -15,33 +15,31 @@
                 {{$t('set.export')}}
             </button>
         </div>
-        <div v-if="inProgress">
-            <CircleLoader/>
-            {{$t('general.loading')}}
-        </div>
+        <ModalProgress v-if="inProgress" :ready="progress[0]" :total="progress[1]"/>
     </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import CircleLoader from '@/components/CircleLoader.vue';
+import ModalProgress from '@/components/ModalProgress.vue';
 import MovieSelector from '@/components/selectors/MovieSelector.vue';
 import { Language } from '@/models/Language';
 import Movie from '@/models/Movie';
 import { setService } from '@/services/SetService';
+import { ProgressCallback } from '@/services/types';
 import { generalModule } from '@/store/general-module';
 import { movieSetModule } from '@/store/movie-set-module';
 
 @Component({
   components: {
     MovieSelector,
-    CircleLoader,
+    ModalProgress,
   },
 })
 export default class MovieSetPage extends Vue {
     private readonly setService = setService;
 
-    private inProgress = false;
+    private progress: [number, number] | null = null;
 
     private get selectedMovies(): Movie[] {
       return movieSetModule.state.selectedMovies;
@@ -55,26 +53,29 @@ export default class MovieSetPage extends Vue {
       return generalModule.state.lang;
     }
 
+    private get inProgress(): boolean {
+      return this.progress !== null;
+    }
+
     private async onImport() {
       try {
-        this.inProgress = true;
-        const movies = await this.setService.importMovieSetFromFile(this.lang);
+        this.progress = [0, 100];
+        const progressCallback: ProgressCallback = {
+          update: (ready, total) => { this.progress = [ready, total]; },
+        };
+
+        const movies = await this.setService.importMovieSetFromFile(this.lang, progressCallback);
         if (movies !== undefined) {
           this.selectedMovies = movies;
         }
       } finally {
-        this.inProgress = false;
+        this.progress = null;
       }
     }
 
     private async onExport() {
-      try {
-        this.inProgress = true;
-        if (this.selectedMovies.length > 0) {
-          await this.setService.exportMovieSetToFile(this.selectedMovies, 'movies.csv');
-        }
-      } finally {
-        this.inProgress = false;
+      if (this.selectedMovies.length > 0) {
+        this.setService.exportMovieSetToFile(this.selectedMovies, 'movies.csv');
       }
     }
 }
