@@ -89,6 +89,20 @@ export default class TMDBApi {
       return this.fetchAllPages(request, totalPages, map);
     }
 
+    public async searchPersonsByMovie(
+      movieId: MovieId,
+      language: Language,
+    ): Promise<TMDBPerson[]> {
+      const response = await this.getRequest(`${TMDBApi.apiHost}/movie/${movieId}/credits`, {
+        api_key: TMDBApi.apiKey,
+        language,
+      });
+      return response.cast
+        .filter((r: any) => r.known_for_department === 'Acting')
+        .sort((r1: any, r2: any) => r1.order - r2.order)
+        .map((r: any) => this.responseToPerson(r));
+    }
+
     public async searchMoviesByPerson(
       personId: PersonId,
       language: Language,

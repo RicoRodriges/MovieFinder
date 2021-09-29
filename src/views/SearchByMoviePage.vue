@@ -73,6 +73,7 @@ export default class SearchByMoviePage extends Vue {
 
     private filter: Filters = {
       excludeMoviesFromSet: false,
+      includedGenres: [],
       excludedGenres: [],
       years: null,
       sort: this.sortOptions[0].id,
@@ -103,6 +104,10 @@ export default class SearchByMoviePage extends Vue {
       if (this.filter.excludeMoviesFromSet && this.movieSet.length > 0) {
         const excludedIds = new Set(this.movieSet.map((m) => m.id));
         values = values.filter((m) => !excludedIds.has(m[1].id));
+      }
+      if (this.filter.includedGenres.length > 0) {
+        const includedGenres = new Set(this.filter.includedGenres.map((g) => g.id));
+        values = values.filter((m) => m[1].genres.some((g) => includedGenres.has(g.id)));
       }
       if (this.filter.excludedGenres.length > 0) {
         const excludedGenres = new Set(this.filter.excludedGenres.map((g) => g.id));
@@ -180,6 +185,7 @@ export default class SearchByMoviePage extends Vue {
 
     private resetFilter() {
       this.filter.excludeMoviesFromSet = false;
+      this.filter.includedGenres = [];
       this.filter.excludedGenres = [];
       this.filter.years = null;
     }

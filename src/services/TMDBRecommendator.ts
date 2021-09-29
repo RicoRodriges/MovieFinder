@@ -34,6 +34,17 @@ export default class TMDBRecommendator {
     return result.map((r) => [r[0], r[1].toMovie()]);
   }
 
+  public async recommendActorsByMovies(
+    movies: Set<Movie>,
+    lang: Language,
+    progress: ProgressCallback,
+  ): Promise<Array<[Movie[], Person]>> {
+    const recommend = (movie: Movie) => this.api.searchPersonsByMovie(movie.id, lang);
+    const result = await this.recommend([...movies], recommend, (person) => person.id, progress);
+
+    return result.map((r) => [r[0], r[1].toPerson()]);
+  }
+
   /**
    * @param inputs data to build recommendations
    * @param request request to build recommendations

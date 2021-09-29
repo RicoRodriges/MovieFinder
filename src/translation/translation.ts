@@ -19,6 +19,8 @@ export default {
       clearList: 'Remove all actors',
       appendToList: 'Append from actor set',
       appendToSet: 'Append to actor set',
+      showAll: 'Show all actors',
+      excludeMovies: 'Exclude actors in set',
     },
     movie: {
       placeholder: 'Input movie name',
@@ -41,6 +43,7 @@ export default {
     },
     filter: {
       filters: 'Filters',
+      chooseGenresToInclude: 'Choose genres',
       chooseGenresToExclude: 'Choose genres to exclude',
       year: 'Year:',
       validYearRange: 'Valid year range is {min} - {max}',
@@ -70,6 +73,7 @@ export default {
       actorSet: 'Actor set',
       searchByActors: 'Search by actors',
       searchByMovies: 'Search by movies',
+      searchActorsByMovies: 'Search actors by movies',
     },
   },
   [Language.RU]: {
@@ -90,6 +94,8 @@ export default {
       clearList: 'Очистить список актёров',
       appendToList: 'Добавить из коллекции',
       appendToSet: 'Добавить в коллекцию',
+      showAll: 'Показать всех актёров',
+      excludeMovies: 'Исключить актёров в коллекции',
     },
     movie: {
       placeholder: 'Введите название фильма',
@@ -112,6 +118,7 @@ export default {
     },
     filter: {
       filters: 'Фильтры',
+      chooseGenresToInclude: 'Выберите жанры',
       chooseGenresToExclude: 'Выберите жанры для исключения',
       year: 'Год:',
       validYearRange: 'Валидный промежуток {min} - {max} лет',
@@ -142,6 +149,7 @@ export default {
       actorSet: 'Коллекция актёров',
       searchByActors: 'Поиск по актёрам',
       searchByMovies: 'Поиск по фильмам',
+      searchActorsByMovies: 'Поиск актёров по фильмам',
     },
   },
 };

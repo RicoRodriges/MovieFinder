@@ -22,7 +22,15 @@
                         </button>
                         <br />
                         <TagSelector
+                            v-model="includedGenres"
+                            :items="genres"
+                            :placeholder="$t('filter.chooseGenresToInclude')"
+                            :toName="genreToName"
+                        />
+                        <br />
+                        <TagSelector
                             v-model="excludedGenres"
+                            class="excluded-tags"
                             :items="genres"
                             :placeholder="$t('filter.chooseGenresToExclude')"
                             :toName="genreToName"
@@ -72,6 +80,7 @@ import Genre from '@/models/Genre';
 
 export type Filters = {
     excludeMoviesFromSet: boolean;
+    includedGenres: Genre[];
     excludedGenres: Genre[];
     years: [number | null, number | null] | null;
     sort: string;
@@ -98,6 +107,14 @@ export default class MovieFilters extends Vue {
 
     private set excludeMoviesFromSet(v: boolean) {
       this.input({ ...this.value, excludeMoviesFromSet: v });
+    }
+
+    private get includedGenres(): Genre[] {
+      return this.value.includedGenres;
+    }
+
+    private set includedGenres(v: Genre[]) {
+      this.input({ ...this.value, includedGenres: v });
     }
 
     private get excludedGenres(): Genre[] {
@@ -133,8 +150,8 @@ export default class MovieFilters extends Vue {
 }
 </script>
 
-<style scoped>
-.multiselect__tag {
+<style>
+.excluded-tags .multiselect__tag {
     background: #dc3545;
 }
 </style>

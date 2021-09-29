@@ -17,6 +17,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import NavBar from '@/components/NavBar.vue';
 import ActorSetPage from '@/views/ActorSetPage.vue';
 import MovieSetPage from '@/views/MovieSetPage.vue';
+import SearchActorsByMoviePage from '@/views/SearchActorsByMoviePage.vue';
 import SearchByActorPage from '@/views/SearchByActorPage.vue';
 import SearchByMoviePage from '@/views/SearchByMoviePage.vue';
 
@@ -27,12 +28,14 @@ import SearchByMoviePage from '@/views/SearchByMoviePage.vue';
     SearchByActorPage,
     MovieSetPage,
     ActorSetPage,
+    SearchActorsByMoviePage,
   },
 })
 export default class App extends Vue {
     private pages = [
       { name: 'pages.searchByActors', component: SearchByActorPage },
       { name: 'pages.searchByMovies', component: SearchByMoviePage },
+      { name: 'pages.searchActorsByMovies', component: SearchActorsByMoviePage },
       { name: 'pages.actorSet', component: ActorSetPage },
       { name: 'pages.movieSet', component: MovieSetPage },
     ];
