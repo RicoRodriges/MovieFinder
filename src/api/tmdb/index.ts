@@ -163,7 +163,7 @@ export default class TMDBApi {
       } else {
         movieGenres = r.genre_ids.map((v: number) => genres.get(v));
       }
-      return new TMDBMovie(r.id, r.title, r.overview, movieGenres, r.popularity,
+      return new TMDBMovie(r.id, r.title, r.original_title, r.overview, movieGenres, r.popularity,
         r.poster_path ? new URL(`${TMDBApi.posterPathRoot}/${r.poster_path}`) : undefined,
         r.vote_count, r.vote_average, new Date(r.release_date));
     }

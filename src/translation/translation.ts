@@ -61,6 +61,10 @@ export default {
       recommended: 'Recommended',
       loading: 'Loading...',
       startSearch: 'Start search',
+      searchRecommendations: 'Recommendations',
+      searchPopular: 'Popular',
+      searchWatchTogether: 'Watch together',
+      searchMayLike: 'May like',
     },
     set: {
       import: 'Import from file',
@@ -137,6 +141,10 @@ export default {
       selected: 'Выбрано',
       loading: 'Загрузка...',
       startSearch: 'Начать поиск',
+      searchRecommendations: 'Рекомендации',
+      searchPopular: 'Популярное',
+      searchWatchTogether: 'Смотрят вместе',
+      searchMayLike: 'Может понравиться',
     },
     set: {
       import: 'Загрузить из файла',

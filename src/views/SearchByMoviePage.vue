@@ -3,8 +3,17 @@
         <MovieSelector v-model="selectedMovies" :setActions="true"/>
         <div v-if="!isSearching && selectedMovies.length > 0">
             <div>
-                <button type="button" class="btn btn-success m-3" @click="startSearch">
-                    {{$t('general.startSearch')}}
+                <button type="button" class="btn btn-success m-3" @click="recommendationSearch">
+                    {{$t('general.searchRecommendations')}}
+                </button>
+                <button type="button" class="btn btn-success m-3" @click="popularSearch">
+                    {{$t('general.searchPopular')}}
+                </button>
+                <button type="button" class="btn btn-success m-3" @click="watchTogetherSearch">
+                    {{$t('general.searchWatchTogether')}}
+                </button>
+                <button type="button" class="btn btn-success m-3" @click="similarSearch">
+                    {{$t('general.searchMayLike')}}
                 </button>
             </div>
             <MovieFilters v-if="allRecommendations.length > 0"
@@ -41,6 +50,7 @@ import MovieSelector from '@/components/selectors/MovieSelector.vue';
 import Genre from '@/models/Genre';
 import { Language } from '@/models/Language';
 import Movie from '@/models/Movie';
+import { mtRecommendator } from '@/services/MTRecommendator';
 import { tmdbRecommendator } from '@/services/TMDBRecommendator';
 import { ProgressCallback } from '@/services/types';
 import { generalModule } from '@/store/general-module';
@@ -59,6 +69,8 @@ import multiSort from '@/utils/sort';
 })
 export default class SearchByMoviePage extends Vue {
     private readonly recommender = tmdbRecommendator;
+
+    private readonly mtRecommender = mtRecommendator;
 
     private progress: [number, number] | null = null;
 
@@ -166,7 +178,43 @@ export default class SearchByMoviePage extends Vue {
       this.currentPage = page;
     }
 
-    private async startSearch() {
+    private async recommendationSearch() {
+      this.searchMovies(
+        (p) => this.recommender.recommendMoviesByMovies(
+          new Set(this.selectedMovies), this.lang, p,
+        ),
+      );
+    }
+
+    private async watchTogetherSearch() {
+      this.searchMovies(
+        (p) => this.mtRecommender.watchTogether(
+          this.selectedMovies, this.lang, 30, p,
+        ),
+      );
+    }
+
+    private async similarSearch() {
+      this.searchMovies(
+        (p) => this.mtRecommender.similar(
+          this.selectedMovies, this.lang, 3, 0.3, 5, 200, p,
+        ).then((r) => r.map(
+          (v) => [{ length: v[0] }, v[1]] as [Movie[], Movie], // TODO: VERY DIRTY HACK!
+        )),
+      );
+    }
+
+    private async popularSearch() {
+      this.searchMovies(
+        (p) => this.mtRecommender.popular(
+          this.selectedMovies, this.lang, 250, p,
+        ).then((r) => r.map(
+          (v) => [{ length: v[0] }, v[1]] as [Movie[], Movie], // TODO: VERY DIRTY HACK!
+        )),
+      );
+    }
+
+    private async searchMovies(request: (p: ProgressCallback) => Promise<Array<[Movie[], Movie]>>) {
       if (!this.isSearching) {
         try {
           this.progress = [0, 100];
@@ -174,9 +222,7 @@ export default class SearchByMoviePage extends Vue {
             update: (ready, total) => { this.progress = [ready, total]; },
           };
 
-          this.allRecommendations = await this.recommender.recommendMoviesByMovies(
-            new Set(this.selectedMovies), this.lang, progressCallback,
-          );
+          this.allRecommendations = await request(progressCallback);
         } finally {
           this.progress = null;
         }

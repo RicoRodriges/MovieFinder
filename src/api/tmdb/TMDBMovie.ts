@@ -8,6 +8,7 @@ export default class TMDBMovie {
   constructor(
         public readonly id: MovieId,
         public readonly title: string,
+        public readonly originalTitle: string | undefined,
         public readonly overview: string,
         public readonly genres: TMDBGenre[],
         public readonly popularity: number,
