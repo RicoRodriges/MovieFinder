@@ -6,6 +6,9 @@
                 <button type="button" class="btn btn-success m-3" @click="recommendationSearch">
                     {{$t('general.searchRecommendations')}}
                 </button>
+                <button type="button" class="btn btn-success m-3" @click="collectionSearch">
+                    {{$t('general.searchSeries')}}
+                </button>
                 <button type="button" class="btn btn-success m-3" @click="popularSearch">
                     {{$t('general.searchPopular')}}
                 </button>
@@ -181,6 +184,14 @@ export default class SearchByMoviePage extends Vue {
     private async recommendationSearch() {
       this.searchMovies(
         (p) => this.recommender.recommendMoviesByMovies(
+          new Set(this.selectedMovies), this.lang, p,
+        ),
+      );
+    }
+
+    private async collectionSearch() {
+      this.searchMovies(
+        (p) => this.recommender.recommendMoviesFromCollection(
           new Set(this.selectedMovies), this.lang, p,
         ),
       );

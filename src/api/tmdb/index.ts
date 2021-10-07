@@ -116,6 +116,27 @@ export default class TMDBApi {
       );
     }
 
+    public async getCollectionByMovie(
+      movieId: MovieId,
+      language: Language,
+    ): Promise<number | undefined> {
+      const response = await this.getRequest(`${TMDBApi.apiHost}/movie/${movieId}`, {
+        api_key: TMDBApi.apiKey,
+        language,
+      });
+      return response.belongs_to_collection?.id;
+    }
+
+    public async getCollectionMovies(collId: number, language: Language): Promise<TMDBMovie[]> {
+      const response = await this.getRequest(`${TMDBApi.apiHost}/collection/${collId}`, {
+        api_key: TMDBApi.apiKey,
+        language,
+      });
+      return Promise.all(
+        response.parts.map(async (r: any) => this.responseToMovie(r, language)),
+      );
+    }
+
     public async getGenres(language: Language): Promise<Map<GenreId, TMDBGenre>> {
       let r = this.genres.get(language);
       if (!r) {
