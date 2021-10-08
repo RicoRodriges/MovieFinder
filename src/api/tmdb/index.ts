@@ -89,7 +89,7 @@ export default class TMDBApi {
       return this.fetchAllPages(request, totalPages, map);
     }
 
-    public async searchPersonsByMovie(
+    public async getActors(
       movieId: MovieId,
       language: Language,
     ): Promise<TMDBPerson[]> {
@@ -103,7 +103,7 @@ export default class TMDBApi {
         .map((r: any) => this.responseToPerson(r));
     }
 
-    public async searchMoviesByPerson(
+    public async searchMoviesByActor(
       personId: PersonId,
       language: Language,
     ): Promise<TMDBMovie[]> {
@@ -114,6 +114,30 @@ export default class TMDBApi {
       return Promise.all(
         response.cast.map(async (r: any) => this.responseToMovie(r, language)),
       );
+    }
+
+    public async searchMoviesByDirector(
+      personId: PersonId,
+      language: Language,
+    ): Promise<TMDBMovie[]> {
+      const response = await this.getRequest(`${TMDBApi.apiHost}/person/${personId}/movie_credits`, {
+        api_key: TMDBApi.apiKey,
+        language,
+      });
+      const movies: TMDBMovie[] = await Promise.all(
+        response.crew
+          .filter((r: any) => r.department === 'Directing' || r.department === 'Writing')
+          .map(async (r: any) => this.responseToMovie(r, language)),
+      );
+
+      const ids = new Set<MovieId>();
+      return movies.filter((m) => {
+        if (!ids.has(m.id)) {
+          ids.add(m.id);
+          return true;
+        }
+        return false;
+      });
     }
 
     public async getCollectionByMovie(

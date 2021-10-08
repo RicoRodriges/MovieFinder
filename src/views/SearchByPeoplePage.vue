@@ -3,8 +3,11 @@
         <ActorSelector v-model="selectedActors" :setActions="true"/>
         <div v-if="!isSearching && selectedActors.length > 0">
             <div>
-                <button type="button" class="btn btn-success m-3" @click="startSearch">
-                    {{$t('general.startSearch')}}
+                <button type="button" class="btn btn-success m-3" @click="searchByActors">
+                    {{$t('general.searchAsActors')}}
+                </button>
+                <button type="button" class="btn btn-success m-3" @click="searchByDirectors">
+                    {{$t('general.searchAsDirectors')}}
                 </button>
             </div>
             <MovieFilters v-if="allRecommendations.length > 0"
@@ -60,7 +63,7 @@ import multiSort from '@/utils/sort';
     ModalProgress,
   },
 })
-export default class SearchByActorPage extends Vue {
+export default class SearchByPeoplePage extends Vue {
     private readonly recommender = tmdbRecommendator;
 
     private progress: [number, number] | null = null;
@@ -169,7 +172,19 @@ export default class SearchByActorPage extends Vue {
       this.currentPage = page;
     }
 
-    private async startSearch() {
+    private async searchByActors() {
+      this.searchMovies((p) => this.recommender.recommendMoviesByActors(
+        new Set(this.selectedActors), this.lang, p,
+      ));
+    }
+
+    private async searchByDirectors() {
+      this.searchMovies((p) => this.recommender.recommendMoviesByDirectors(
+        new Set(this.selectedActors), this.lang, p,
+      ));
+    }
+
+    private async searchMovies(r: (p: ProgressCallback) => Promise<Array<[Person[], Movie]>>) {
       if (!this.isSearching) {
         try {
           this.progress = [0, 100];
@@ -177,9 +192,7 @@ export default class SearchByActorPage extends Vue {
             update: (ready, total) => { this.progress = [ready, total]; },
           };
 
-          this.allRecommendations = await this.recommender.recommendMoviesByActors(
-            new Set(this.selectedActors), this.lang, progressCallback,
-          );
+          this.allRecommendations = await r(progressCallback);
         } finally {
           this.progress = null;
         }

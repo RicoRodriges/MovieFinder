@@ -28,7 +28,18 @@ export default class TMDBRecommendator {
     lang: Language,
     progress: ProgressCallback,
   ): Promise<Array<[Person[], Movie]>> {
-    const recommend = (actor: Person) => this.api.searchMoviesByPerson(actor.id, lang);
+    const recommend = (actor: Person) => this.api.searchMoviesByActor(actor.id, lang);
+    const result = await this.recommend([...people], recommend, (movie) => movie.id, progress);
+
+    return result.map((r) => [r[0], r[1].toMovie()]);
+  }
+
+  public async recommendMoviesByDirectors(
+    people: Set<Person>,
+    lang: Language,
+    progress: ProgressCallback,
+  ): Promise<Array<[Person[], Movie]>> {
+    const recommend = (actor: Person) => this.api.searchMoviesByDirector(actor.id, lang);
     const result = await this.recommend([...people], recommend, (movie) => movie.id, progress);
 
     return result.map((r) => [r[0], r[1].toMovie()]);
@@ -39,7 +50,7 @@ export default class TMDBRecommendator {
     lang: Language,
     progress: ProgressCallback,
   ): Promise<Array<[Movie[], Person]>> {
-    const recommend = (movie: Movie) => this.api.searchPersonsByMovie(movie.id, lang);
+    const recommend = (movie: Movie) => this.api.getActors(movie.id, lang);
     const result = await this.recommend([...movies], recommend, (person) => person.id, progress);
 
     return result.map((r) => [r[0], r[1].toPerson()]);
